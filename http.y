@@ -4,7 +4,7 @@
 using namespace std;
 
 int yylex();
-void yyerror(const char *p) { cerr << "Error!\n"; }
+void yyerror(const char *p) { cerr << "error: " << p << endl; }
 %}
 
 %union {
@@ -22,20 +22,22 @@ void yyerror(const char *p) { cerr << "Error!\n"; }
 %type <str> header_line header_lines
 %type <str> request_line name value uri
 
+%error-verbose
+
 %%
-header : header_lines TCRLF { cout << "HEADER!"; }
+header : header_lines TCRLF { cout << "HEADER!\n"; }
        ;
 
-header_lines : { cout << "header lines done"; }
-             | header_line TCRLF header_lines { cout << "HEADER LINES"; }
+header_lines : {}
+             | header_line TCRLF header_lines { cout << "HEADER LINES\n"; }
              ;
 
 header_line : request_line { cout << "REQUEST\n"; }
             | name TCOLON value { cout << "MAPPING\n"; }
             ;
 
-request_line : TGET uri THTTP name TCRLF { cout << "GET\n"; }
-             | TPOST uri THTTP name TCRLF { cout << "POST"; }
+request_line : TGET uri THTTP name { cout << "GET\n"; }
+             | TPOST uri THTTP name { cout << "POST"; }
              ;
 
 name : { cout << "name done\n"; }
