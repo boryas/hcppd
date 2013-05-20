@@ -7,7 +7,6 @@ void sig_chld(int sig) {
   int pid;
   int stat;
   pid = wait(&stat);
-  std::cout << "child " << pid << " terminated\n";
   return;
 }
 

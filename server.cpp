@@ -9,6 +9,7 @@ HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
 }
 
 HttpRequest HttpServer::parseRequest(const string& requestString) {
+  cout << requestString;
   return requestString;
 }
 
@@ -30,7 +31,6 @@ void HttpServer::serve() {
     socklen_t clilen;
     sock_.Accept(&clilen);
     int connfd = sock_.getConnFd();
-    std::cout << "connected!\n";
     int pid = fork();
     if (pid < 0) {
       // error
