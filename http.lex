@@ -1,7 +1,10 @@
 %{
 #include <iostream>
 #include <string>
+#include <vector>
+#include "http.h"
 #include "http.tab.hpp"
+
 using namespace std;
 %}
 
@@ -10,8 +13,14 @@ using namespace std;
 %option noyywrap
 
 %%
+OPTIONS { return TOPTIONS; }
 GET { return TGET; }
+HEAD { return THEAD; }
 POST { return TPOST; }
+PUT { return TPUT; }
+DELETE { return TDELETE; }
+TRACE { return TTRACE; }
+CONNECT { return TCONNECT; }
 HTTP { return THTTP; }
 [a-z] { yylval.sym = yytext[0]; return TLOALPHA; }
 [A-Z] { yylval.sym = yytext[0]; return THIALPHA; }

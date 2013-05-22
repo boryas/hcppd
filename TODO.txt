@@ -1,0 +1,1 @@
+figure out how to unique-pointerify the components of the request so stuff gets cleaned up nicely

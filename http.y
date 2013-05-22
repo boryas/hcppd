@@ -1,54 +1,75 @@
 %{
 #include <iostream>
 #include <string>
+#include <vector>
+#include "http.h"
 using namespace std;
 
 int yylex();
 void yyerror(const char *p) { cerr << "error: " << p << endl; }
+HttpRequest *request;
 %}
 
 %union {
   int num;
   char sym;
   std::string *str;
+  HttpRequest *request;
+  HttpHeaderLine *header_line;
+  std::vector<HttpHeaderLine> *header;
+  HttpRequestLine *request_line;
+  HttpMethod method;
 }
 
-%token <sym> TGET TPOST THTTP 
+%token <method> TOPTIONS TGET THEAD TPOST TPUT TDELETE TTRACE TCONNECT
+%token <sym> THTTP
 %token <sym> TLOALPHA THIALPHA TCRLF TOCTET
 %token <sym> TCOLON
 %token <num> TNUM
 
-%type <str> header
-%type <str> header_line header_lines
-%type <str> request_line name value uri
+%type <request> request
+%type <header_line> header_line
+%type <request_line> request_line
+%type <method> method
+%type <header> header
+%type <str> name value uri
 
 %error-verbose
 
 %%
-header : header_lines TCRLF { cout << "HEADER!\n"; }
-       ;
+request : request_line header TCRLF { request = new HttpRequest();
+                                      request->request_line = *$1;
+                                      request->header = *$2; }
+        ;
 
-header_lines : {}
-             | header_line TCRLF header_lines { cout << "HEADER LINES\n"; }
+request_line : method uri THTTP name TCRLF { $$ = new HttpRequestLine();
+                                             $$->method = $1;
+                                             $$->uri = *$2;
+                                             $$->protocol_version = *$4; }
              ;
 
-header_line : request_line { cout << "REQUEST\n"; }
-            | name TCOLON value { cout << "MAPPING\n"; }
+header: { $$ = new vector<HttpHeaderLine>(); }
+      | header header_line TCRLF { $1->push_back(*$2); }
+      ;
+
+header_line : name TCOLON value { $$ = new HttpHeaderLine();
+                                  $$->name = *$1;
+                                  $$->value = *$3; }
             ;
 
-request_line : TGET uri THTTP name { cout << "GET\n"; }
-             | TPOST uri THTTP name { cout << "POST"; }
-             ;
+method : TGET { $$ = GET; }
+       | TPOST { $$ = POST; }
+       ;
 
-name : { cout << "name done\n"; }
-     | TLOALPHA name { cout << $1 << endl; }
-     | THIALPHA name { cout << $1 << endl; }
-     | TOCTET name { cout << $1 << endl; }
-     | TNUM name { cout << $1 << endl; }
+name : { $$ = new string(); }
+     | name TLOALPHA { $1->append(1, $2); }
+     | name THIALPHA { $1->append(1, $2); }
+     | name TOCTET { $1->append(1, $2); }
+     | name TNUM { $1->append(1, $2); }
      ;
-value : name {}
+value : name { $$ = $1; }
       ;
-uri : name {}
+uri : name { $$ = $1; }
     ;
 
 %%

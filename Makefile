@@ -12,8 +12,8 @@ server.o: server.cpp server.h socket.o
 socket.o: socket.cpp socket.h util.h
 	g++ -c socket.cpp
 
-parser: http.lex http.y
-	bison -d -o http.tab.cpp http.y
+parser: http.lex http.y http.h
+	bison -v -d -o http.tab.cpp http.y
 	flex -o lex.yy.cpp http.lex
 	g++ -o http_parser http.tab.cpp lex.yy.cpp
 
