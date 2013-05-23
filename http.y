@@ -154,21 +154,13 @@ int main() {
   yyparse();
   HttpRequestLine rl = request->request_line;
   cout << "protocol version: " << rl.protocol_version << endl;
-  cout << "method: ";
-  switch (rl.method) {
-  case GET:
-    cout << "GET\n";
-    break;
-  default:
-    cout << "Not GET\n";
-  }
+  cout << "method: " << rl.dumpMethod() << endl;
   cout << "uri: " << rl.uri << endl;
   cout << "header:\n";
   vector<HttpHeaderLine *> h = request->header;
   for (int i=0; i<h.size(); ++i) {
     HttpHeaderLine *hl = h[i];
-    hl->print_field();
-    cout << ": " << hl->value << endl;
+    cout << hl->dumpField() << ": " << hl->value << endl;
   }
   return 0;
 }
