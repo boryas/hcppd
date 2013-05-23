@@ -1,8 +1,9 @@
 #ifndef _HTTP_DEFS_H
 #define _HTTP_DEFS_H
 
-#include <vector>
 #include <string>
+#include <memory>
+#include <vector>
 
 enum HttpMethod {
   OPTIONS,
@@ -62,9 +63,9 @@ enum HEADER_TYPE {
 class HttpRequestLine {
 public:
   virtual ~HttpRequestLine() {}
-  std::string uri;
+  std::unique_ptr<std::string> uri;
   HttpMethod method;
-  std::string protocol_version;
+  std::unique_ptr<std::string> protocol_version;
   std::string dumpMethod() {
     switch (method) {
       case OPTIONS: return "OPTIONS";
@@ -84,7 +85,7 @@ class HttpHeaderLine {
 public:
   virtual ~HttpHeaderLine() {}
   virtual std::string dumpField() = 0;
-  std::string value;
+  std::unique_ptr<std::string> value;
   HEADER_TYPE type;
 };
 
@@ -153,8 +154,8 @@ public:
 class HttpRequest {
 public:
   virtual ~HttpRequest() {}
-  HttpRequestLine request_line;
-  std::vector<HttpHeaderLine *> header;
+  std::unique_ptr<HttpRequestLine> request_line;
+  std::unique_ptr<std::vector<std::unique_ptr<HttpHeaderLine>>> header;
 };
 
 #endif //_HTTP_DEFS_H

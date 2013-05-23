@@ -1,6 +1,7 @@
 %{
 #include <iostream>
 #include <string>
+#include <memory>
 #include <vector>
 #include "http.h"
 using namespace std;
@@ -18,7 +19,7 @@ HttpRequest *request;
   HttpGeneralHeaderLine *general_header_line;
   HttpRequestHeaderLine *request_header_line;
   HttpEntityHeaderLine *entity_header_line;
-  std::vector<HttpHeaderLine *> *header;
+  std::vector<std::unique_ptr<HttpHeaderLine>> *header;
   HttpRequestLine *request_line;
   HttpMethod method;
   HttpGeneralHeaderField general_field;
@@ -62,22 +63,23 @@ HttpRequest *request;
 
 %%
 request : request_line header TCRLF { request = new HttpRequest();
-                                      request->request_line = *$1;
-                                      request->header = *$2; }
+                                      request->request_line.reset($1);
+                                      request->header.reset($2); }
         ;
 
 request_line : method uri THTTP name TCRLF { $$ = new HttpRequestLine();
                                              $$->method = $1;
-                                             $$->uri = *$2;
-                                             $$->protocol_version = *$4; }
+                                             $$->uri.reset($2);
+                                             $$->protocol_version.reset($4); }
              ;
 
 method : TGET { $$ = GET; }
        | TPOST { $$ = POST; }
        ;
 
-header: { $$ = new vector<HttpHeaderLine *>(); }
-      | header header_line TCRLF { $1->push_back($2); }
+header: { $$ = new vector<unique_ptr<HttpHeaderLine>>(); }
+      | header header_line TCRLF { unique_ptr<HttpHeaderLine> h($2);
+                                   $1->push_back(move(h)); }
       ;
 
 header_line : general_header_line { $$ = $1; }
@@ -87,19 +89,19 @@ header_line : general_header_line { $$ = $1; }
 general_header_line : general_field TCOLON value
                     { $$ = new HttpGeneralHeaderLine();
                       $$->field = $1;
-                      $$->value = *$3;
+                      $$->value.reset($3);
                       $$->type = GENERAL; }
 
 request_header_line : request_field TCOLON value
                     { $$ = new HttpRequestHeaderLine();
                       $$->field = $1;
-                      $$->value = *$3;
+                      $$->value.reset($3);
                       $$->type = REQUEST; }
 
 entity_header_line : entity_field TCOLON value
                     { $$ = new HttpEntityHeaderLine();
                       $$->field = $1;
-                      $$->value = *$3;
+                      $$->value.reset($3);
                       $$->type = ENTITY; }
 
 general_field : TCACHE_CONTROL { $$ = CACHE_CONTROL; }
@@ -152,15 +154,21 @@ uri : name { $$ = $1; }
 
 int main() {
   yyparse();
-  HttpRequestLine rl = request->request_line;
-  cout << "protocol version: " << rl.protocol_version << endl;
-  cout << "method: " << rl.dumpMethod() << endl;
-  cout << "uri: " << rl.uri << endl;
-  cout << "header:\n";
-  vector<HttpHeaderLine *> h = request->header;
-  for (int i=0; i<h.size(); ++i) {
-    HttpHeaderLine *hl = h[i];
-    cout << hl->dumpField() << ": " << hl->value << endl;
+  unique_ptr<HttpRequestLine> rl;
+  rl = move(request->request_line);
+  cout << "---------\nREQUEST:\n";
+  cout << "protocol version: " << *rl->protocol_version << endl;
+  cout << "method: " << rl->dumpMethod() << endl;
+  cout << "uri: " << *rl->uri << endl;
+
+  cout << "---------\nHEADER:\n";
+  unique_ptr<vector<unique_ptr<HttpHeaderLine>>> h;
+  h = move(request->header);
+  for (int i=0; i<h->size(); ++i) {
+    unique_ptr<HttpHeaderLine> hl;
+    hl = move((*h)[i]);
+    cout << hl->dumpField() << ": " << *hl->value << endl;
   }
+  cout << "---------\n";
   return 0;
 }

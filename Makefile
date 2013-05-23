@@ -15,7 +15,7 @@ socket.o: socket.cpp socket.h util.h
 parser: http.lex http.y http.h
 	bison -v -d -o http.tab.cpp http.y
 	flex -o lex.yy.cpp http.lex
-	g++ -o http_parser http.tab.cpp lex.yy.cpp
+	g++ -std=c++0x -o http_parser http.tab.cpp lex.yy.cpp
 
 clean:
 	rm *.o hcppd lex.yy.* http.tab.* http_parser
