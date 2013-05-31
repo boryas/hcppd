@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 enum HttpMethod {
   OPTIONS,
@@ -171,9 +172,21 @@ public:
 
 class HttpRequest {
 public:
+  HttpRequest() {}
+  HttpRequest(HttpRequest&& request) :
+    request_line(std::move(request.request_line)),
+    header(std::move(request.header)) {}
+  HttpRequest &operator=(HttpRequest&& request) {
+    request_line = std::move(request.request_line);
+    header = std::move(request.header);
+    return *this;
+  }
   virtual ~HttpRequest() {}
   std::unique_ptr<HttpRequestLine> request_line;
   std::unique_ptr<std::vector<std::unique_ptr<HttpHeaderLine>>> header;
+private:
+  HttpRequest(const HttpRequest& request);
+  HttpRequest &operator=(const HttpRequest& request);
 };
 
 #endif //_HTTP_REQUEST_DEFS_H

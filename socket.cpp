@@ -3,7 +3,6 @@
 #define SERV_PORT 8080
 #define LISTENQ 10
 
-namespace bostack {
 namespace sock {
 
 Sockaddr::Sockaddr() {
@@ -117,5 +116,4 @@ int Socket::Read(std::string *msg) {
   return nread;
 }
 
-}
 }

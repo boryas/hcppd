@@ -1,9 +1,8 @@
+#include "http_request.h"
+#include "http_response.h"
 #include "socket.h"
 
-namespace bostack {
-namespace httpd {
-typedef std::string HttpResponse;
-typedef std::string HttpRequest;
+namespace hcppd {
 class HttpServer {
 public:
   void serve();
@@ -12,7 +11,6 @@ private:
   HttpRequest parseRequest(const std::string& requestString);
   HttpResponse handleConnection();
   void sendResponse(const HttpResponse& response);
-  bostack::sock::Socket sock_;
+  sock::Socket sock_;
 };
 } // server
-} // bostack

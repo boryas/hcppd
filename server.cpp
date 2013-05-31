@@ -1,16 +1,40 @@
 #include "server.h"
+#include "http.tab.hpp"
 
-using namespace bostack::sock;
-using namespace bostack::httpd;
+using namespace sock;
+using namespace hcppd;
 using namespace std;
 
+extern int yyparse();
+extern int yy_scan_string(const char *str);
+extern HttpRequest *request;
+
 HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
-  return "dummy response!";
+  HttpResponse response;
+  return response;
 }
 
 HttpRequest HttpServer::parseRequest(const string& requestString) {
-  cout << requestString;
-  return requestString;
+  yy_scan_string(requestString.c_str());
+  yyparse();
+  unique_ptr<HttpRequestLine> rl;
+  rl = move(request->request_line);
+  cout << "---------\nREQUEST:\n";
+  cout << "protocol version: " << *rl->protocol_version << endl;
+  cout << "method: " << rl->dumpMethod() << endl;
+  cout << "uri: " << *rl->uri << endl;
+
+  cout << "---------\nHEADER:\n";
+  unique_ptr<vector<unique_ptr<HttpHeaderLine>>> h;
+  h = move(request->header);
+  for (int i=0; i<h->size(); ++i) {
+    unique_ptr<HttpHeaderLine> hl;
+    hl = move((*h)[i]);
+    cout << hl->dumpField() << ": " << *hl->value << endl;
+  }
+  cout << "---------\n";
+
+  return move(*request);
 }
 
 HttpResponse HttpServer::handleConnection() {
@@ -20,7 +44,7 @@ HttpResponse HttpServer::handleConnection() {
 }
 
 void HttpServer::sendResponse(const HttpResponse& response) {
-  sock_.Write(response);
+  sock_.Write("dummy response");
 }
 
 void HttpServer::serve() {

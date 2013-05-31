@@ -8,7 +8,6 @@
 
 #define MAXLINE 4096
 
-namespace bostack {
 namespace sock {
 
 class Sockaddr {
@@ -49,6 +48,5 @@ private:
   char buffer_[MAXLINE];
 };
 
-}
 }
 #endif //_SOCKET_H

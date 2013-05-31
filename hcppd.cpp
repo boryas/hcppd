@@ -1,7 +1,7 @@
 #include "server.h"
 
-using namespace bostack::sock;
-using namespace bostack::httpd;
+using namespace sock;
+using namespace hcppd;
 
 void sig_chld(int sig) {
   int pid;

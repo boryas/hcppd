@@ -7,6 +7,7 @@
 using namespace std;
 
 int yylex();
+//extern int yy_scan_string(const char *);
 void yyerror(const char *p) { cerr << "error: " << p << endl; }
 HttpRequest *request;
 %}
@@ -163,24 +164,3 @@ uri : name { $$ = $1; }
     ;
 
 %%
-
-int main() {
-  yyparse();
-  unique_ptr<HttpRequestLine> rl;
-  rl = move(request->request_line);
-  cout << "---------\nREQUEST:\n";
-  cout << "protocol version: " << *rl->protocol_version << endl;
-  cout << "method: " << rl->dumpMethod() << endl;
-  cout << "uri: " << *rl->uri << endl;
-
-  cout << "---------\nHEADER:\n";
-  unique_ptr<vector<unique_ptr<HttpHeaderLine>>> h;
-  h = move(request->header);
-  for (int i=0; i<h->size(); ++i) {
-    unique_ptr<HttpHeaderLine> hl;
-    hl = move((*h)[i]);
-    cout << hl->dumpField() << ": " << *hl->value << endl;
-  }
-  cout << "---------\n";
-  return 0;
-}
