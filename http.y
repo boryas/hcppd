@@ -33,8 +33,11 @@ HttpRequest *request;
 %token <general_field> TTRANSFER_ENCODING TUPGRADE TVIA TWARNING
 
 %token <request_field> TACCEPT TACCEPT_CHARSET TACCEPT_ENCODING
-%token <request_field> TACCEPT_LANGUAGE TAUTHORIZATION
-%token <request_field> TEXPECT TFROM THOST TIF_MATCH TUSER_AGENT
+%token <request_field> TACCEPT_LANGUAGE TAUTHORIZATION TUSER_AGENT
+%token <request_field> TEXPECT TFROM THOST TIF_MATCH TTE
+%token <request_field> TIF_MODIFIED_SINCE TIF_NONE_MATCH TIF_RANGE
+%token <request_field> TIF_UNMODIFIED_SINCE TMAX_FORWARDS
+%token <request_field> TPROXY_AUTHORIZATION TRANGE TREFERER
 
 %token <entity_field> TALLOW TCONTENT_ENCODING TCONTENT_LANGUAGE
 %token <entity_field> TCONTENT_LENGTH TCONTENT_LOCATION TCONTENT_MD5
@@ -124,6 +127,15 @@ request_field : TACCEPT { $$ = ACCEPT; }
               | TFROM { $$ = FROM; }
               | THOST { $$ = HOST; }
               | TIF_MATCH { $$ = IF_MATCH; }
+              | TIF_MODIFIED_SINCE { $$ = IF_MODIFIED_SINCE; }
+              | TIF_NONE_MATCH { $$ = IF_NONE_MATCH; }
+              | TIF_RANGE { $$ = IF_RANGE; }
+              | TIF_UNMODIFIED_SINCE { $$ = IF_UNMODIFIED_SINCE; }
+              | TMAX_FORWARDS { $$ = MAX_FORWARDS; }
+              | TPROXY_AUTHORIZATION { $$ = PROXY_AUTHORIZATION; }
+              | TRANGE { $$ = RANGE; }
+              | TREFERER { $$ = REFERER; }
+              | TTE { $$ = TE; }
               | TUSER_AGENT { $$ = USER_AGENT; }
               ;
 

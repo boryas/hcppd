@@ -43,6 +43,15 @@ Expect { return TEXPECT; }
 From { return TFROM; }
 Host { return THOST; }
 If-Match { return TIF_MATCH; }
+If-Modified-Since { return TIF_MODIFIED_SINCE; }
+If-None-Match { return TIF_NONE_MATCH; }
+If-Range { return TIF_RANGE; }
+If-Unmodified-Since { return TIF_UNMODIFIED_SINCE; }
+Max-Forwards { return TMAX_FORWARDS; }
+Proxy-Authorization { return TPROXY_AUTHORIZATION; }
+Range { return TRANGE; }
+Referer { return TREFERER; }
+TE { return TTE; }
 User-Agent { return TUSER_AGENT; }
 
 Allow { return TALLOW; }

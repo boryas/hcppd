@@ -38,6 +38,15 @@ enum HttpRequestHeaderField {
   FROM,
   HOST,
   IF_MATCH,
+  IF_MODIFIED_SINCE,
+  IF_NONE_MATCH,
+  IF_RANGE,
+  IF_UNMODIFIED_SINCE,
+  MAX_FORWARDS,
+  PROXY_AUTHORIZATION,
+  RANGE,
+  REFERER,
+  TE,
   USER_AGENT,
 };
 
@@ -124,6 +133,15 @@ public:
       case FROM: return "FROM";
       case HOST: return "HOST";
       case IF_MATCH: return "IF_MATCH";
+      case IF_MODIFIED_SINCE: return "IF_MODIFIED_SINCE";
+      case IF_NONE_MATCH: return "IF_NONE_MATCH";
+      case IF_RANGE: return "IF_RANGE";
+      case IF_UNMODIFIED_SINCE: return "IF_UNMODIFIED_SINCE";
+      case MAX_FORWARDS: return "MAX_FORWARDS";
+      case PROXY_AUTHORIZATION: return "PROXY_AUTHORIZATION";
+      case RANGE: return "RANGE";
+      case REFERER: return "REFERER";
+      case TE: return "TE";
       case USER_AGENT: return "USER_AGENT";
       default: std::cout << "shouldn't have parsed...";
     }
