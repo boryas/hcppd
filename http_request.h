@@ -1,5 +1,5 @@
-#ifndef _HTTP_DEFS_H
-#define _HTTP_DEFS_H
+#ifndef _HTTP_REQUEST_DEFS_H
+#define _HTTP_REQUEST_DEFS_H
 
 #include <string>
 #include <memory>
@@ -176,4 +176,4 @@ public:
   std::unique_ptr<std::vector<std::unique_ptr<HttpHeaderLine>>> header;
 };
 
-#endif //_HTTP_DEFS_H
+#endif //_HTTP_REQUEST_DEFS_H
