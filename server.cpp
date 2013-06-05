@@ -1,3 +1,7 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "server.h"
 #include "http.tab.hpp"
 
@@ -6,34 +10,47 @@ using namespace hcppd;
 using namespace std;
 
 extern int yyparse();
+extern int yylex_destroy();
 extern int yy_scan_string(const char *str);
 extern HttpRequest *request;
 
 HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
   HttpResponse response;
+  StatusLine status_line;
+  status_line.protocol_version = "HTTP/1.1";
+
+  unique_ptr<string> uri = move(request.request_line->uri);
+  cout << "Responding to request for: " << uri->c_str() << endl;
+  struct stat st;
+  if (stat(uri->c_str(), &st) == -1) {
+    cerr << strerror(errno) << endl;
+    if (errno == ENOENT) {
+      status_line.status_code = 404;
+      status_line.reason_phrase = "Not Found!";
+    }
+  }
+  else {
+    status_line.status_code = 200;
+    status_line.reason_phrase = "OK";
+    if (st.st_mode & S_IFDIR) {
+      response.message = "dir";
+    }
+    else if (st.st_mode & S_IFREG) {
+      response.message = "regular file";
+    }
+    else {
+      response.message = "somethin' else";
+    }
+  }
+
+  response.status_line = status_line;
   return response;
 }
 
 HttpRequest HttpServer::parseRequest(const string& requestString) {
   yy_scan_string(requestString.c_str());
   yyparse();
-  unique_ptr<HttpRequestLine> rl;
-  rl = move(request->request_line);
-  cout << "---------\nREQUEST:\n";
-  cout << "protocol version: " << *rl->protocol_version << endl;
-  cout << "method: " << rl->dumpMethod() << endl;
-  cout << "uri: " << *rl->uri << endl;
-
-  cout << "---------\nHEADER:\n";
-  unique_ptr<vector<unique_ptr<HttpHeaderLine>>> h;
-  h = move(request->header);
-  for (int i=0; i<h->size(); ++i) {
-    unique_ptr<HttpHeaderLine> hl;
-    hl = move((*h)[i]);
-    cout << hl->dumpField() << ": " << *hl->value << endl;
-  }
-  cout << "---------\n";
-
+  yylex_destroy();
   return move(*request);
 }
 
@@ -44,7 +61,7 @@ HttpResponse HttpServer::handleConnection() {
 }
 
 void HttpServer::sendResponse(const HttpResponse& response) {
-  sock_.Write("dummy response");
+  sock_.Write(response.format());
 }
 
 void HttpServer::serve() {

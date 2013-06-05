@@ -7,7 +7,7 @@ hcppd: hcppd.o lex.yy.o http.tab.o
 hcppd.o: hcppd.cpp server.o
 	g++ $(CC_FLAGS) -c hcppd.cpp
 
-server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o
+server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o http_response.h
 	g++ $(CC_FLAGS) -c server.cpp
 
 socket.o: socket.cpp socket.h util.h
@@ -29,4 +29,4 @@ lex.yy.cpp: http.lex http.tab.cpp
 	flex -o lex.yy.cpp http.lex
 
 clean:
-	rm *.o hcppd lex.yy.* http.tab.* http_parser
+	rm *.o hcppd lex.yy.* http.tab.* http_parser 2> /dev/null || true
