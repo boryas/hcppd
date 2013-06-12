@@ -2,9 +2,9 @@
 #define _HTTP_REQUEST_DEFS_H
 
 #include <string>
+#include <syslog.h>
 #include <memory>
 #include <vector>
-#include <iostream>
 
 enum HttpMethod {
   OPTIONS,
@@ -114,7 +114,7 @@ public:
       case UPGRADE: return "UPGRADE";
       case VIA: return "VIA";
       case WARNING: return "WARNING";
-      default: std::cout << "shouldn't have parsed...";
+      default: syslog(LOG_WARNING, "shouldn't have parsed...");
     }
   }
 };
@@ -144,7 +144,7 @@ public:
       case REFERER: return "REFERER";
       case TE: return "TE";
       case USER_AGENT: return "USER_AGENT";
-      default: std::cout << "shouldn't have parsed...";
+      default: syslog(LOG_WARNING, "shouldn't have parsed...");
     }
   }
 };
@@ -165,7 +165,7 @@ public:
       case CONTENT_TYPE: return "CONTENT_TYPE";
       case EXPIRES: return "EXPIRES";
       case LAST_MODIFIED: return "LAST_MODIFIED";
-      default: std::cout << "shouldn't have parsed...";
+      default: syslog(LOG_WARNING, "shouldn't have parsed...");
     }
   }
 };

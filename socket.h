@@ -13,6 +13,7 @@ namespace sock {
 class Sockaddr {
 public:
   Sockaddr();
+  void init(int port);
   struct sockaddr *sockaddr();
   socklen_t size();
 private:
@@ -25,7 +26,7 @@ class Socket {
 public:
   Socket();
   ~Socket();
-  int Bind();
+  int Bind(int port);
   int Listen();
   int Accept(socklen_t *clilen);
   int Writen(const char *msg, size_t n);

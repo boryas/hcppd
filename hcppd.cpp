@@ -11,6 +11,7 @@ void sig_chld(int sig) {
 }
 
 int main() {
+  daemon(1, 0);
   struct sigaction sa;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART;

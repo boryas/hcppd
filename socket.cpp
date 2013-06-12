@@ -1,6 +1,5 @@
 #include "socket.h"
 
-#define SERV_PORT 8080
 #define LISTENQ 10
 
 namespace sock {
@@ -9,7 +8,10 @@ Sockaddr::Sockaddr() {
   memset(&sockaddr_, 0, sizeof(sockaddr_));
   sockaddr_.sin_family = AF_INET;
   sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
-  sockaddr_.sin_port = htons(SERV_PORT);
+}
+
+void Sockaddr::init(int port) {
+  sockaddr_.sin_port = htons(port);
 }
 
 struct sockaddr *Sockaddr::sockaddr() {
@@ -23,13 +25,12 @@ socklen_t Sockaddr::size() {
 Socket::Socket() {
   if ((listenfd_ = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     sockerr_ = errno;
-    std::cerr << "Failed to create socket " << strerror(errno) << std::endl;
+    syslog(LOG_ERR, "Failed to create socket %m");
   }
   int y = 1;
   if ((setsockopt(listenfd_, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y))) == -1) {
     sockerr_ = errno;
-    std::cerr << "Failed to make socket address reusable "
-              << strerror(errno) << std::endl;
+    syslog(LOG_ERR, "Failed to make socket address reusable %m");
   }
 }
 
@@ -37,11 +38,11 @@ Socket::~Socket() {
   close(listenfd_);
 }
 
-int Socket::Bind() {
+int Socket::Bind(int port) {
+  servaddr_.init(port);
   if (bind(listenfd_, servaddr_.sockaddr(), servaddr_.size()) == -1) {
     sockerr_ = errno;
-    std::cerr << "Failed to bind socket " << listenfd_
-              << " error was: " << strerror(errno) << std::endl;
+    syslog(LOG_ERR, "Failed to bind socket %d; %m", listenfd_);
     return -1;
   }
   return 0;
@@ -50,8 +51,7 @@ int Socket::Bind() {
 int Socket::Listen() {
   if (listen(listenfd_, LISTENQ) == -1) {
     sockerr_ = errno;
-    std::cerr << "Failed to listen on socket " << listenfd_
-              << " error was: " << strerror(errno) << std::endl;
+    syslog(LOG_ERR, "Failed to listen on socket %d; %m", listenfd_);
     return -1;
   }
   return 0;
@@ -61,8 +61,7 @@ int Socket::Accept(socklen_t *clilen) {
   *clilen = cliaddr_.size();
   if ((connfd_ = accept(listenfd_, cliaddr_.sockaddr(), clilen)) == -1) {
     sockerr_ = errno;
-    std::cerr << "Failed to accept on socket " << listenfd_
-              << " error was: " << strerror(errno) << std::endl;
+    syslog(LOG_ERR, "Failed to accept on socket %d; %m", listenfd_);
     return -1;
   }
   return 0;
@@ -80,7 +79,7 @@ int Socket::Writen(const char *msg, size_t n) {
       sockerr = errno;
       if (sockerr != EINTR) {
         sockerr_ = sockerr;
-        std::cerr << "Write error" << std::endl;
+        syslog(LOG_ERR, "Write error; %m");
         return -1;
       }
     }
@@ -105,7 +104,7 @@ int Socket::Read(std::string *msg) {
       sockerr = errno;
       if (sockerr != EINTR) {
         sockerr_ = sockerr;
-        std::cerr << "Read error" << std::endl;
+        syslog(LOG_ERR, "Read error; %m");
         return -1;
       }
     }

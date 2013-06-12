@@ -1,14 +1,13 @@
 %{
-#include <iostream>
-#include <string>
 #include <memory>
+#include <string>
+#include <syslog.h>
 #include <vector>
 #include "http_request.h"
 using namespace std;
 
 int yylex();
-//extern int yy_scan_string(const char *);
-void yyerror(const char *p) { cerr << "error: " << p << endl; }
+void yyerror(const char *p) { syslog(LOG_ERR, "error: %s", p); }
 HttpRequest *request;
 %}
 

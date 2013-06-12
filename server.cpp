@@ -5,6 +5,8 @@
 #include "server.h"
 #include "http.tab.hpp"
 
+#define SERV_PORT 8080
+
 using namespace sock;
 using namespace hcppd;
 using namespace std;
@@ -20,10 +22,9 @@ HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
   status_line.protocol_version = "HTTP/1.1";
 
   unique_ptr<string> uri = move(request.request_line->uri);
-  cout << "Responding to request for: " << uri->c_str() << endl;
+  syslog(LOG_INFO, "Responding to request for: %s", uri->c_str());
   struct stat st;
   if (stat(uri->c_str(), &st) == -1) {
-    cerr << strerror(errno) << endl;
     if (errno == ENOENT) {
       status_line.status_code = 404;
       status_line.reason_phrase = "Not Found!";
@@ -65,7 +66,7 @@ void HttpServer::sendResponse(const HttpResponse& response) {
 }
 
 void HttpServer::serve() {
-  sock_.Bind();
+  sock_.Bind(SERV_PORT);
   sock_.Listen();
   int x = 3;
   for ( ; ; ) {
@@ -75,7 +76,7 @@ void HttpServer::serve() {
     int pid = fork();
     if (pid < 0) {
       // error
-      std::cout << "failed to fork child to handle connection\n";
+      syslog(LOG_WARNING, "failed to fork child to handle connection");
     } else if (pid == 0) {
       // child
       close(sock_.getListenFd());

@@ -8,4 +8,5 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <syslog.h>
 #endif //_UTIL_H
