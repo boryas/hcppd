@@ -1,6 +1,9 @@
 #ifndef _UTIL_H
 #define _UTIL_H
+
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <errno.h>
 #include <signal.h>
