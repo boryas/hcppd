@@ -1,4 +1,4 @@
-CC_FLAGS = -std=c++0x
+CC_FLAGS = -std=c++0x -Wall -Werror
 all: hcppd
 
 hcppd: hcppd.o lex.yy.o http.tab.o

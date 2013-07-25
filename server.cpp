@@ -17,12 +17,6 @@ extern int yylex_destroy();
 extern int yy_scan_string(const char *str);
 extern HttpRequest *request;
 
-string handleDir(const string& uri) {
-}
-
-string handleFile(const string& uri) {
-}
-
 HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
   HttpResponse response;
   response.status_line.protocol_version = "HTTP/1.1";
@@ -54,7 +48,7 @@ HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
       return response;
     }
     struct dirent* dir;
-    while (dir = readdir(d)) {
+    while ((dir = readdir(d))) {
       string d_name(dir->d_name);
       if (d_name == "." || d_name == "..") {
         continue;
@@ -110,11 +104,10 @@ void HttpServer::sendResponse(const HttpResponse& response) {
 void HttpServer::serve() {
   sock_.Bind(SERV_PORT);
   sock_.Listen();
-  int x = 3;
   for ( ; ; ) {
     socklen_t clilen;
     sock_.Accept(&clilen);
-    int connfd = sock_.getConnFd();
+    sock_.getConnFd();
     int pid = fork();
     if (pid < 0) {
       // error
