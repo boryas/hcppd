@@ -107,7 +107,6 @@ void HttpServer::serve() {
   for ( ; ; ) {
     socklen_t clilen;
     sock_.Accept(&clilen);
-    sock_.getConnFd();
     int pid = fork();
     if (pid < 0) {
       // error
