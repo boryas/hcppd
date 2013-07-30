@@ -4,9 +4,8 @@ using namespace sock;
 using namespace hcppd;
 
 void sig_chld(int sig) {
-  int pid;
   int stat;
-  pid = wait(&stat);
+  wait(&stat);
   return;
 }
 

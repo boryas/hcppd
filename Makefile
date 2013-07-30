@@ -1,4 +1,5 @@
-CC_FLAGS = -std=c++0x -Wall -Werror
+CC_VERSION = -std=c++11
+CC_FLAGS = $(CC_VERSION) -Wall -Werror
 all: hcppd
 
 hcppd: hcppd.o lex.yy.o http.tab.o
@@ -14,13 +15,13 @@ socket.o: socket.cpp socket.h util.h
 	g++ $(CC_FLAGS) -c socket.cpp
 
 parser: http.tab.cpp lex.yy.cpp
-	g++ $(CC_FLAGS) -o http_parser http.tab.cpp lex.yy.cpp
+	g++ $(CC_VERSION) -o http_parser http.tab.cpp lex.yy.cpp
 
 http.tab.o: http.tab.cpp
 	g++ $(CC_FLAGS) -o $@ -c http.tab.cpp
 
 lex.yy.o: lex.yy.cpp
-	g++ $(CC_FLAGS) -o $@ -c lex.yy.cpp
+	g++ $(CC_VERSION) -o $@ -c lex.yy.cpp
 
 http.tab.cpp: http.y http_request.h
 	bison -v -d -o http.tab.cpp http.y

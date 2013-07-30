@@ -86,7 +86,7 @@ public:
       case DELETE: return "DELETE";
       case TRACE: return "TRACE";
       case CONNECT: return "CONNECT";
-      default: return "shouldn't have parsed";
+      default: return "shouldn't have parsed"; return "error";
     }
   }
 };
@@ -114,7 +114,7 @@ public:
       case UPGRADE: return "UPGRADE";
       case VIA: return "VIA";
       case WARNING: return "WARNING";
-      default: syslog(LOG_WARNING, "shouldn't have parsed...");
+      default: syslog(LOG_WARNING, "shouldn't have parsed..."); return "error";
     }
   }
 };
@@ -144,7 +144,7 @@ public:
       case REFERER: return "REFERER";
       case TE: return "TE";
       case USER_AGENT: return "USER_AGENT";
-      default: syslog(LOG_WARNING, "shouldn't have parsed...");
+      default: syslog(LOG_WARNING, "shouldn't have parsed..."); return "error";
     }
   }
 };
@@ -165,7 +165,7 @@ public:
       case CONTENT_TYPE: return "CONTENT_TYPE";
       case EXPIRES: return "EXPIRES";
       case LAST_MODIFIED: return "LAST_MODIFIED";
-      default: syslog(LOG_WARNING, "shouldn't have parsed...");
+      default: syslog(LOG_WARNING, "shouldn't have parsed..."); return "error";
     }
   }
 };
