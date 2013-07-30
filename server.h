@@ -7,6 +7,9 @@ class HttpServer {
 public:
   void serve();
 private:
+  HttpResponse respond(int status,
+                       const std::string& reason,
+                       const std::string& message);
   HttpResponse handleRequest(const HttpRequest& request);
   HttpRequest parseRequest(const std::string& requestString);
   HttpResponse handleConnection();

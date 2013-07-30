@@ -6,10 +6,7 @@
 #include "server.h"
 #include "http.tab.hpp"
 
-#define SERV_PORT 8080
-
 using namespace sock;
-using namespace hcppd;
 using namespace std;
 
 extern int yyparse();
@@ -17,23 +14,33 @@ extern int yylex_destroy();
 extern int yy_scan_string(const char *str);
 extern HttpRequest *request;
 
-HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
-  HttpResponse response;
-  response.status_line.protocol_version = "HTTP/1.1";
+namespace hcppd {
 
+const int SERV_PORT = 8080;
+const string PROTOCOL_VERSION = "HTTP/1.1";
+
+HttpResponse HttpServer::respond(int status,
+                                 const string& reason,
+                                 const string& message) {
+  HttpResponse response;
+  response.status_line.protocol_version = PROTOCOL_VERSION;
+  response.status_line.status_code = status;
+  response.status_line.reason_phrase = reason;
+  response.message = message;
+  return response;
+}
+
+HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
   unique_ptr<string> uri = move(request.request_line->uri);
   syslog(LOG_INFO, "Responding to request for: %s", uri->c_str());
   struct stat st;
   if (stat(uri->c_str(), &st) == -1) {
     if (errno == ENOENT) {
-      response.status_line.status_code = 404;
-      response.status_line.reason_phrase = "Not Found!";
-      return response;
+      syslog(LOG_ERR, "URI not found: %s: %m", uri->c_str());
+      return respond(404, "Not Found!", "");
     }
-    response.status_line.status_code = 500;
     syslog(LOG_ERR, "Error stat-ing directory %s: %m", uri->c_str());
-    response.status_line.reason_phrase = "Error stat-ing directory";
-    return response;
+    return respond(500, "Error stat-ing directory", "");
   }
   stringstream res_ss;
   if (st.st_mode & S_IFDIR) {
@@ -42,10 +49,8 @@ HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
     }
     DIR* d;
     if ((d = opendir(uri->c_str())) == NULL) {
-      response.status_line.status_code = 500;
       syslog(LOG_ERR, "Error opening directory %s: %m", uri->c_str());
-      response.status_line.reason_phrase = "Error opening directory";
-      return response;
+      return respond(500, "Error opening directory", "");
     }
     struct dirent* dir;
     while ((dir = readdir(d))) {
@@ -78,10 +83,7 @@ HttpResponse HttpServer::handleRequest(const HttpRequest& request) {
   else {
     res_ss << "somethin' else";
   }
-  response.status_line.status_code = 200;
-  response.status_line.reason_phrase = "OK";
-  response.message = res_ss.str();
-  return response;
+  return respond(200, "OK", res_ss.str());
 }
 
 HttpRequest HttpServer::parseRequest(const string& requestString) {
@@ -123,3 +125,4 @@ void HttpServer::serve() {
     }
   }
 }
+} //namespace hcppd
