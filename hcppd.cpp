@@ -21,5 +21,13 @@ int main(int argc, char **argv) {
   sa.sa_handler = sig_chld;
   sigaction(SIGCHLD, &sa, NULL);
   HttpServer server;
+  auto port = options.find("port");
+  if (port != options.end()) {
+    server.port = atoi(port->second.c_str());
+  }
+  auto dynamic_content_server = options.find("dynamic_content_server");
+  if (dynamic_content_server != options.end()) {
+    server.dynamic_content_server = dynamic_content_server->second;
+  }
   server.serve();
 }

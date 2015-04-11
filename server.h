@@ -3,8 +3,13 @@
 #include "socket.h"
 
 namespace hcppd {
+
+const int SERV_PORT = 80;
+
 class HttpServer {
 public:
+  int port = SERV_PORT;
+  std::string dynamic_content_server;
   void serve();
 private:
   HttpResponse respond(int status,

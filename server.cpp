@@ -16,7 +16,6 @@ extern HttpRequest *request;
 
 namespace hcppd {
 
-const int SERV_PORT = 80;
 const string PROTOCOL_VERSION = "HTTP/1.1";
 
 HttpResponse HttpServer::respond(int status,
@@ -104,7 +103,8 @@ void HttpServer::sendResponse(const HttpResponse& response) {
 }
 
 void HttpServer::serve() {
-  sock_.Bind(SERV_PORT);
+  syslog(LOG_INFO, "Server listening on %d", port);
+  sock_.Bind(port);
   sock_.Listen();
   for ( ; ; ) {
     socklen_t clilen;
