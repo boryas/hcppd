@@ -3,6 +3,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <string>
 #include <sstream>
 
 #include <errno.h>

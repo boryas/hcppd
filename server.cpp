@@ -16,7 +16,7 @@ extern HttpRequest *request;
 
 namespace hcppd {
 
-const int SERV_PORT = 8080;
+const int SERV_PORT = 80;
 const string PROTOCOL_VERSION = "HTTP/1.1";
 
 HttpResponse HttpServer::respond(int status,

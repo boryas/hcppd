@@ -1,7 +1,9 @@
+#include "options.h"
 #include "server.h"
 
-using namespace sock;
 using namespace hcppd;
+using namespace sock;
+using namespace std;
 
 void sig_chld(int sig) {
   int stat;
@@ -9,7 +11,9 @@ void sig_chld(int sig) {
   return;
 }
 
-int main() {
+int main(int argc, char **argv) {
+  auto options = get_options(argc, argv);
+  log_options(options);
   daemon(1, 0);
   struct sigaction sa;
   sigemptyset(&sa.sa_mask);

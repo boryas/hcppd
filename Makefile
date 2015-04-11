@@ -3,9 +3,9 @@ CC_FLAGS = $(CC_VERSION) -Wall -Werror
 all: hcppd
 
 hcppd: hcppd.o lex.yy.o http.tab.o
-	g++ $(CC_FLAGS) hcppd.o server.o socket.o lex.yy.o http.tab.o -o hcppd
+	g++ $(CC_FLAGS) hcppd.o server.o socket.o lex.yy.o http.tab.o options.o -o hcppd
 
-hcppd.o: hcppd.cpp server.o
+hcppd.o: hcppd.cpp server.o options.o
 	g++ $(CC_FLAGS) -c hcppd.cpp
 
 server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o http_response.h
@@ -13,6 +13,9 @@ server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o http_response.h
 
 socket.o: socket.cpp socket.h util.h
 	g++ $(CC_FLAGS) -c socket.cpp
+
+options.o: options.cpp options.h util.h
+	g++ $(CC_FLAGS) -c options.cpp
 
 parser: http.tab.cpp lex.yy.cpp
 	g++ $(CC_VERSION) -o http_parser http.tab.cpp lex.yy.cpp
