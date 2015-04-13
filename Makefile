@@ -2,8 +2,11 @@ CC_VERSION = -std=c++11
 CC_FLAGS = $(CC_VERSION) -Wall -Werror
 all: hcppd directory_server
 
-directory_server: directory_server.cpp http_response.h util.h
-	g++ $(CC_FLAGS) directory_server.cpp -o directory_server
+directory_server: directory_server.o
+	g++ $(CC_FLAGS) directory_server.o socket.o -o directory_server
+
+directory_server.o: directory_server.cpp socket.o http_response.h
+	g++ $(CC_FLAGS) -c directory_server.cpp
 
 hcppd: hcppd.o lex.yy.o http.tab.o
 	g++ $(CC_FLAGS) hcppd.o server.o socket.o lex.yy.o http.tab.o options.o -o hcppd
@@ -11,7 +14,7 @@ hcppd: hcppd.o lex.yy.o http.tab.o
 hcppd.o: hcppd.cpp server.o options.o
 	g++ $(CC_FLAGS) -c hcppd.cpp
 
-server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o http_response.h
+server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o
 	g++ $(CC_FLAGS) -c server.cpp
 
 socket.o: socket.cpp socket.h util.h
