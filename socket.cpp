@@ -4,8 +4,17 @@
 
 namespace sock {
 
-Sockaddr::Sockaddr(int port, sa_family_t family) {
-  auto port_str = std::to_string(port);
+Sockaddr::Sockaddr(const std::string& service, sa_family_t family) {
+  if (family == AF_LOCAL) {
+    syslog(LOG_INFO, "Creating Unix Domain socket address: %s", service.c_str());
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = family;
+    memmove(addr.sun_path, service.c_str(), service.size());
+    memmove(&sockaddr_, (struct sockaddr_storage *)&addr, sizeof(addr));
+    return;
+  }
+  syslog(LOG_INFO, "Creating socket address on port: %s", service.c_str());
   int status;
   struct addrinfo hints;
   struct addrinfo *addrinfos;
@@ -13,9 +22,9 @@ Sockaddr::Sockaddr(int port, sa_family_t family) {
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   hints.ai_family = family;
-  status = getaddrinfo(nullptr, port_str.c_str(), &hints, &addrinfos);
+  status = getaddrinfo(nullptr, service.c_str(), &hints, &addrinfos);
   if (status != 0) {
-    syslog(LOG_INFO, "getaddrinfo failed: %s", gai_strerror(status));
+    syslog(LOG_INFO, "Failed to create socket address: %s", gai_strerror(status));
   }
   memmove(&sockaddr_, (struct sockaddr_storage *)addrinfos->ai_addr,
       sizeof(sockaddr_));
@@ -30,13 +39,14 @@ socklen_t Sockaddr::size() const {
   return sizeof(sockaddr_);
 }
 
-Socket::Socket(int port) {
-  port_ = port;
+
+Socket::Socket(const std::string& service) {
+  service_ = service;
   family_ = AF_INET6;
 }
 
-Socket::Socket(int port, sa_family_t family) {
-  port_ = port;
+Socket::Socket(const std::string& service, sa_family_t family) {
+  service_ = service;
   family_ = family;
 }
 
@@ -54,7 +64,7 @@ int Socket::Bind() {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to make socket address reusable %m");
   }
-  servaddr_.reset(new Sockaddr(port_, family_));
+  servaddr_.reset(new Sockaddr(service_, family_));
   if (bind(listenfd_, servaddr_->sockaddr(), servaddr_->size()) == -1) {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to bind socket %d; %m", listenfd_);
@@ -69,7 +79,7 @@ int Socket::Listen() {
     syslog(LOG_ERR, "Failed to listen on socket %d; %m", listenfd_);
     return -1;
   }
-  cliaddr_.reset(new Sockaddr(port_, family_));
+  cliaddr_.reset(new Sockaddr(service_, family_));
   return 0;
 }
 

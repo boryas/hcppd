@@ -106,7 +106,7 @@ void startDynamicContentServer() {
 }
 
 void HttpServer::serve() {
-  syslog(LOG_INFO, "Server listening on %d", port);
+  syslog(LOG_INFO, "Server listening on %s", port.c_str());
   sock_.reset(new Socket(port));
   sock_->Bind();
   sock_->Listen();

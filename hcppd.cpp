@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   HttpServer server;
   auto port = options.find("port");
   if (port != options.end()) {
-    server.port = atoi(port->second.c_str());
+    server.port = port->second;
   }
   auto dynamic_content_server = options.find("dynamic_content_server");
   if (dynamic_content_server != options.end()) {

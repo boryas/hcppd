@@ -15,7 +15,7 @@ namespace sock {
 
 class Sockaddr {
 public:
-  Sockaddr(int port, sa_family_t family);
+  Sockaddr(const std::string& service, sa_family_t family);
   struct sockaddr *sockaddr() const;
   socklen_t size() const;
 private:
@@ -24,8 +24,8 @@ private:
 
 class Socket {
 public:
-  Socket(int port);
-  Socket(int port, sa_family_t family);
+  Socket(const std::string& service);
+  Socket(const std::string& service, sa_family_t family);
   ~Socket();
   int Bind();
   int Listen();
@@ -45,7 +45,7 @@ public:
 private:
   std::unique_ptr<Sockaddr> servaddr_;
   std::unique_ptr<Sockaddr> cliaddr_;
-  int port_;
+  std::string service_;
   int connfd_;
   int listenfd_;
   int sockerr_;
