@@ -1,8 +1,10 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/un.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -13,23 +15,22 @@ namespace sock {
 
 class Sockaddr {
 public:
-  Sockaddr();
-  void init(int port);
-  struct sockaddr *sockaddr();
-  socklen_t size();
+  Sockaddr(int port, sa_family_t family);
+  struct sockaddr *sockaddr() const;
+  socklen_t size() const;
 private:
-  struct sockaddr_in sockaddr_;
+  struct sockaddr_storage sockaddr_;
 };
 
-// TODO: Decide to either generalize this or make it more explicitly
-// a IPv4 TCP socket
 class Socket {
 public:
-  Socket();
+  Socket(int port);
+  Socket(int port, sa_family_t family);
   ~Socket();
-  int Bind(int port);
+  int Bind();
   int Listen();
-  int Accept(socklen_t *clilen);
+  int Accept();
+  int Connect(const Sockaddr& addr);
   int Writen(const char *msg, size_t n);
   int Write(const std::string& msg);
   int Read(std::string *msg);
@@ -42,11 +43,14 @@ public:
   }
 
 private:
-  Sockaddr servaddr_;
-  Sockaddr cliaddr_;
+  std::unique_ptr<Sockaddr> servaddr_;
+  std::unique_ptr<Sockaddr> cliaddr_;
+  int port_;
   int connfd_;
   int listenfd_;
   int sockerr_;
+  socklen_t clilen_;
+  sa_family_t family_;
   char buffer_[MAXLINE];
 };
 

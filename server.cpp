@@ -94,34 +94,37 @@ HttpRequest HttpServer::parseRequest(const string& requestString) {
 
 HttpResponse HttpServer::handleConnection() {
   std::string msg;
-  sock_.Read(&msg);
+  sock_->Read(&msg);
   return handleRequest(parseRequest(msg));
 }
 
 void HttpServer::sendResponse(const HttpResponse& response) {
-  sock_.Write(response.format());
+  sock_->Write(response.format());
+}
+
+void startDynamicContentServer() {
 }
 
 void HttpServer::serve() {
   syslog(LOG_INFO, "Server listening on %d", port);
-  sock_.Bind(port);
-  sock_.Listen();
+  sock_.reset(new Socket(port));
+  sock_->Bind();
+  sock_->Listen();
   for ( ; ; ) {
-    socklen_t clilen;
-    sock_.Accept(&clilen);
+    sock_->Accept();
     int pid = fork();
     if (pid < 0) {
       // error
       syslog(LOG_WARNING, "failed to fork child to handle connection");
     } else if (pid == 0) {
       // child
-      close(sock_.getListenFd());
+      close(sock_->getListenFd());
       sendResponse(handleConnection());
       exit(0);
     }
     else {
       // parent
-      close(sock_.getConnFd());
+      close(sock_->getConnFd());
     }
   }
 }

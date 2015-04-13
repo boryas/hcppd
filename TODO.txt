@@ -1,5 +1,5 @@
 1) protocol to farm out page generation for sick websites yo
-  a) UNIX socket
+  a) make Socket class support any address family (for unix domain sockets)
 2) rewrite with event driven model for... web-scale hehehe
 3) IPv6
 4) figure out how to unique-pointerify the components of the request so stuff gets cleaned up nicely

@@ -4,26 +4,48 @@
 
 namespace sock {
 
-Sockaddr::Sockaddr() {
-  memset(&sockaddr_, 0, sizeof(sockaddr_));
-  sockaddr_.sin_family = AF_INET;
-  sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
+Sockaddr::Sockaddr(int port, sa_family_t family) {
+  auto port_str = std::to_string(port);
+  int status;
+  struct addrinfo hints;
+  struct addrinfo *addrinfos;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = family;
+  status = getaddrinfo(nullptr, port_str.c_str(), &hints, &addrinfos);
+  if (status != 0) {
+    syslog(LOG_INFO, "getaddrinfo failed: %s", gai_strerror(status));
+  }
+  memmove(&sockaddr_, (struct sockaddr_storage *)addrinfos->ai_addr,
+      sizeof(sockaddr_));
+  freeaddrinfo(addrinfos);
 }
 
-void Sockaddr::init(int port) {
-  sockaddr_.sin_port = htons(port);
-}
-
-struct sockaddr *Sockaddr::sockaddr() {
+struct sockaddr *Sockaddr::sockaddr() const {
   return (struct sockaddr *)(&sockaddr_);
 }
 
-socklen_t Sockaddr::size() {
+socklen_t Sockaddr::size() const {
   return sizeof(sockaddr_);
 }
 
-Socket::Socket() {
-  if ((listenfd_ = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+Socket::Socket(int port) {
+  port_ = port;
+  family_ = AF_INET6;
+}
+
+Socket::Socket(int port, sa_family_t family) {
+  port_ = port;
+  family_ = family;
+}
+
+Socket::~Socket() {
+  close(listenfd_);
+}
+
+int Socket::Bind() {
+  if ((listenfd_ = socket(family_, SOCK_STREAM, 0)) == -1) {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to create socket %m");
   }
@@ -32,15 +54,8 @@ Socket::Socket() {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to make socket address reusable %m");
   }
-}
-
-Socket::~Socket() {
-  close(listenfd_);
-}
-
-int Socket::Bind(int port) {
-  servaddr_.init(port);
-  if (bind(listenfd_, servaddr_.sockaddr(), servaddr_.size()) == -1) {
+  servaddr_.reset(new Sockaddr(port_, family_));
+  if (bind(listenfd_, servaddr_->sockaddr(), servaddr_->size()) == -1) {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to bind socket %d; %m", listenfd_);
     return -1;
@@ -54,14 +69,29 @@ int Socket::Listen() {
     syslog(LOG_ERR, "Failed to listen on socket %d; %m", listenfd_);
     return -1;
   }
+  cliaddr_.reset(new Sockaddr(port_, family_));
   return 0;
 }
 
-int Socket::Accept(socklen_t *clilen) {
-  *clilen = cliaddr_.size();
-  if ((connfd_ = accept(listenfd_, cliaddr_.sockaddr(), clilen)) == -1) {
+int Socket::Accept() {
+  clilen_ = cliaddr_->size();
+  if ((connfd_ = accept(listenfd_, cliaddr_->sockaddr(), &clilen_)) == -1) {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to accept on socket %d; %m", listenfd_);
+    return -1;
+  }
+  return 0;
+}
+
+int Socket::Connect(const Sockaddr& addr) {
+  if ((connfd_ = socket(addr.sockaddr()->sa_family, SOCK_STREAM, 0)) == -1) {
+    sockerr_ = errno;
+    syslog(LOG_ERR, "Failed to create socket %m");
+  }
+
+  if (connect(connfd_, addr.sockaddr(), addr.size()) == -1) {
+    sockerr_ = errno;
+    syslog(LOG_ERR, "Failed to connect on socket %d; %m", listenfd_);
     return -1;
   }
   return 0;
