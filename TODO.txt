@@ -1,5 +1,6 @@
-1) protocol to farm out page generation for sick websites yo
-  a) make Socket class support any address family (for unix domain sockets)
-2) rewrite with event driven model for... web-scale hehehe
-3) IPv6
-4) figure out how to unique-pointerify the components of the request so stuff gets cleaned up nicely
+protocol to farm out page generation for sick websites yo
+share server code between hcppd and directory_server
+cleanup and logging
+rewrite with event driven model for... web-scale hehehe
+spawn dynamic content server from hcppd rather than needing it to run independently
+figure out how to unique-pointerify the components of the request so stuff gets cleaned up nicely

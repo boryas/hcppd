@@ -22,5 +22,6 @@ lex.yy.cpp
 *.output
 
 # Binaries
+directory_server
 hcppd
 http_parser

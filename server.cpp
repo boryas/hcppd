@@ -16,7 +16,13 @@ namespace hcppd {
 
 string HttpServer::handleRequest(const HttpRequest& request) {
   unique_ptr<string> uri = move(request.request_line->uri);
-  return "";
+  Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
+  Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
+  dyn_client.Connect(addr);
+  dyn_client.Write(uri->c_str());
+  string response;
+  dyn_client.Read(&response);
+  return response;
 }
 
 HttpRequest HttpServer::parseRequest(const string& requestString) {
