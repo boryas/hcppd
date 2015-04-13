@@ -36,6 +36,9 @@ struct sockaddr *Sockaddr::sockaddr() const {
 }
 
 socklen_t Sockaddr::size() const {
+  if (sockaddr_.ss_family == AF_LOCAL) {
+    return SUN_LEN((struct sockaddr_un *)&sockaddr_);
+  }
   return sizeof(sockaddr_);
 }
 

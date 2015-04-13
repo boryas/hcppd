@@ -1,6 +1,9 @@
 CC_VERSION = -std=c++11
 CC_FLAGS = $(CC_VERSION) -Wall -Werror
-all: hcppd
+all: hcppd directory_server
+
+directory_server: directory_server.cpp http_response.h util.h
+	g++ $(CC_FLAGS) directory_server.cpp -o directory_server
 
 hcppd: hcppd.o lex.yy.o http.tab.o
 	g++ $(CC_FLAGS) hcppd.o server.o socket.o lex.yy.o http.tab.o options.o -o hcppd
