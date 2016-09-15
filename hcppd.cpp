@@ -25,9 +25,5 @@ int main(int argc, char **argv) {
   if (port != options.end()) {
     server.port = port->second;
   }
-  auto dynamic_content_server = options.find("dynamic_content_server");
-  if (dynamic_content_server != options.end()) {
-    server.dynamic_content_server = dynamic_content_server->second;
-  }
   server.serve();
 }

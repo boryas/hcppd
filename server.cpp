@@ -7,13 +7,6 @@ namespace hcppd {
 
 std::string HttpServer::handleRequest(const lib::http::HttpRequest& request) {
   return request.uri();
-  lib::sock::Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
-  lib::sock::Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
-  dyn_client.Connect(addr);
-  dyn_client.Write(request.request_line.uri.c_str());
-  std::string response;
-  dyn_client.Read(&response);
-  return response;
 }
 
 std::string HttpServer::handleConnection() {
@@ -22,9 +15,6 @@ std::string HttpServer::handleConnection() {
   lib::http::HttpRequest req(msg);
   syslog(LOG_INFO, req.request_line.uri.c_str());
   return handleRequest(req);
-}
-
-void startDynamicContentServer() {
 }
 
 void HttpServer::serve() {

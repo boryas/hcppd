@@ -8,11 +8,16 @@
 namespace lib {
 namespace http {
 
-class StatusLine {
+class HttpStatusLine {
 public:
+  HttpStatusLine() = default;
+  HttpStatusLine(const std::string& protocol,
+                 int status,
+                 const std::string& reason);
   std::string protocol_version;
   int status_code;
   std::string reason_phrase;
+
   std::string format() const {
     std::stringstream ss;
     ss << protocol_version << " " << status_code << " "
@@ -23,11 +28,14 @@ public:
 
 class HttpResponse {
 public:
-  StatusLine status_line;
-  //TODO: massage imports to share general header fields and
-  //exhaust/enumerate the actual fields
-  std::vector<std::string> header;
+  HttpResponse() = default;
+  HttpResponse(int status,
+               const std::string& reason,
+               const std::string& message);
+  HttpStatusLine status_line;
   std::string message;
+  std::vector<std::string> header;
+
   std::string format() const {
     std::string status = status_line.format();
     std::stringstream ss;
