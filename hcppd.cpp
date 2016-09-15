@@ -6,7 +6,6 @@
 
 using namespace hcppd;
 using namespace sock;
-using namespace std;
 
 void sig_chld(int sig) {
   int stat;
