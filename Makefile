@@ -17,11 +17,11 @@ hcppd.o: hcppd.cpp server.o options.o
 server.o: server.cpp http.tab.cpp lex.yy.cpp server.h socket.o
 	g++ $(CC_FLAGS) -c server.cpp
 
-socket.o: socket.cpp socket.h util.h
-	g++ $(CC_FLAGS) -c socket.cpp
+socket.o: lib/socket.cpp lib/socket.h
+	g++ $(CC_FLAGS) -c lib/socket.cpp
 
-options.o: options.cpp options.h util.h
-	g++ $(CC_FLAGS) -c options.cpp
+options.o: lib/options.cpp lib/options.h
+	g++ $(CC_FLAGS) -c lib/options.cpp
 
 parser: http.tab.cpp lex.yy.cpp
 	g++ $(CC_VERSION) -o http_parser http.tab.cpp lex.yy.cpp
@@ -39,4 +39,4 @@ lex.yy.cpp: http.lex http.tab.cpp
 	flex -o lex.yy.cpp http.lex
 
 clean:
-	rm *.o hcppd lex.yy.* http.tab.* http_parser 2> /dev/null || true
+	rm *.o hcppd directory_server lex.yy.* http.tab.* http_parser 2> /dev/null || true

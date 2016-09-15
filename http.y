@@ -3,6 +3,7 @@
 #include <string>
 #include <syslog.h>
 #include <vector>
+#include <iostream>
 #include "http_request.h"
 using namespace std;
 
@@ -76,7 +77,7 @@ request_line : method uri THTTP name TCRLF { $$ = new HttpRequestLine();
                                              $$->protocol_version.reset($4); }
              ;
 
-method : TGET { $$ = GET; }
+method : TGET { $$ = GET; std::cout << "GET!";}
        | TPOST { $$ = POST; }
        ;
 

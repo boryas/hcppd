@@ -1,9 +1,12 @@
 #include <dirent.h>
+#include <syslog.h>
 #include <sys/stat.h>
+
+#include <fstream>
+
 #include "http_response.h"
-#include "options.h"
-#include "socket.h"
-#include "util.h"
+#include "lib/options.h"
+#include "lib/socket.h"
 
 using namespace::std;
 

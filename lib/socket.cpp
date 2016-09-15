@@ -1,5 +1,7 @@
 #include "socket.h"
 
+#include <syslog.h>
+
 #define LISTENQ 10
 
 namespace sock {

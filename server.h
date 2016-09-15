@@ -1,5 +1,9 @@
+#pragma once
+
+#include <string>
+
 #include "http_request.h"
-#include "socket.h"
+#include "lib/socket.h"
 
 namespace hcppd {
 

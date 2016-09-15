@@ -1,5 +1,5 @@
-#ifndef _SOCKET_H
-#define _SOCKET_H
+#pragma once
+
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -7,7 +7,8 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#include "util.h"
+#include <memory>
+#include <string>
 
 #define MAXLINE 4096
 
@@ -55,4 +56,3 @@ private:
 };
 
 }
-#endif //_SOCKET_H

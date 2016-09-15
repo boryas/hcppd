@@ -1,4 +1,4 @@
 #! /bin/sh
 
-pkill hcppd
+sudo pkill hcppd
 sudo ./hcppd $@

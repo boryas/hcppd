@@ -1,6 +1,11 @@
-protocol to farm out page generation for sick websites yo
-share server code between hcppd and directory_server
-cleanup and logging
-rewrite with event driven model for... web-scale hehehe
-spawn dynamic content server from hcppd rather than needing it to run independently
-figure out how to unique-pointerify the components of the request so stuff gets cleaned up nicely
+get rid of using namespace std
+lower case function names
+refactor stuff into lib--better build setup?
+no more yacc--write a crappy parser
+strings lib
+socket lib
+concurrency libs
+load testing to show difference between forks, pools, events
+options/settings <-> JSON
+get rid of util.h
+switch to #pragma once

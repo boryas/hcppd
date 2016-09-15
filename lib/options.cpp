@@ -1,6 +1,6 @@
 #include "options.h"
 
-using namespace std;
+#include <syslog.h>
 
 static struct option long_options[] =
 {
@@ -8,8 +8,8 @@ static struct option long_options[] =
   {"dynamic_content_server", required_argument, nullptr, 's'},
 };
 
-map<string, string> get_options(int argc, char **argv) {
-  map<string, string> options;
+std::map<std::string, std::string> get_options(int argc, char **argv) {
+  std::map<std::string, std::string> options;
   int c;
   int option_index = 0;
   while ((c = getopt_long(argc, argv, "p:s:",

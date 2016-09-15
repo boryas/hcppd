@@ -5,7 +5,6 @@
 #include "http.tab.hpp"
 
 using namespace sock;
-using namespace std;
 
 extern int yyparse();
 extern int yylex_destroy();
@@ -14,25 +13,27 @@ extern HttpRequest *request;
 
 namespace hcppd {
 
-string HttpServer::handleRequest(const HttpRequest& request) {
-  unique_ptr<string> uri = move(request.request_line->uri);
+std::string HttpServer::handleRequest(const HttpRequest& request) {
+  std::unique_ptr<std::string> uri = std::move(request.request_line->uri);
   Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
   Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
   dyn_client.Connect(addr);
   dyn_client.Write(uri->c_str());
-  string response;
+  std::string response;
   dyn_client.Read(&response);
   return response;
 }
 
-HttpRequest HttpServer::parseRequest(const string& requestString) {
+HttpRequest HttpServer::parseRequest(const std::string& requestString) {
+  syslog(LOG_INFO, requestString.c_str());
   yy_scan_string(requestString.c_str());
   yyparse();
   yylex_destroy();
-  return move(*request);
+  syslog(LOG_INFO, "parsed");
+  return std::move(*request);
 }
 
-string HttpServer::handleConnection() {
+std::string HttpServer::handleConnection() {
   std::string msg;
   sock_->Read(&msg);
   return handleRequest(parseRequest(msg));

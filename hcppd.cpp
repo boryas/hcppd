@@ -1,4 +1,7 @@
-#include "options.h"
+#include <signal.h>
+#include <sys/wait.h>
+
+#include "lib/options.h"
 #include "server.h"
 
 using namespace hcppd;
