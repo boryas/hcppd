@@ -1,11 +1,12 @@
-#ifndef _HTTP_RESPONSE_DEFS_H
-#define _HTTP_RESPONSE_DEFS_H
+#pragma once
 
 #include<iostream>
 #include<sstream>
 #include<string>
 #include<vector>
-namespace hcppd {
+
+namespace lib {
+namespace http {
 
 class StatusLine {
 public:
@@ -37,5 +38,6 @@ public:
     return ss.str();
   }
 };
-}
-#endif //_HTTP_RESPONSE_DEFS_H
+
+} // namespace http
+} // namespace lib

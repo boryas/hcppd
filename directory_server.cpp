@@ -5,16 +5,16 @@
 #include <fstream>
 #include <sstream>
 
-#include "http_response.h"
+#include "lib/http/response.h"
 #include "lib/options.h"
 #include "lib/socket.h"
 
 const std::string PROTOCOL_VERSION = "HTTP/1.1";
 
-hcppd::HttpResponse respond(int status,
-                            const std::string& reason,
-                            const std::string& message) {
-  hcppd::HttpResponse response;
+lib::http::HttpResponse respond(int status,
+                                const std::string& reason,
+                                const std::string& message) {
+  lib::http::HttpResponse response;
   response.status_line.protocol_version = PROTOCOL_VERSION;
   response.status_line.status_code = status;
   response.status_line.reason_phrase = reason;
@@ -22,7 +22,7 @@ hcppd::HttpResponse respond(int status,
   return response;
 }
 
-hcppd::HttpResponse handle(std::string uri) {
+lib::http::HttpResponse handle(std::string uri) {
   syslog(LOG_INFO, "Responding to request for: %s", uri.c_str());
   struct stat st;
   if (stat(uri.c_str(), &st) == -1) {

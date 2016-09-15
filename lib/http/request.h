@@ -1,10 +1,12 @@
-#ifndef _HTTP_REQUEST_DEFS_H
-#define _HTTP_REQUEST_DEFS_H
+#pragma once
 
 #include <string>
 #include <syslog.h>
 #include <memory>
 #include <vector>
+
+namespace lib {
+namespace http {
 
 enum HttpMethod {
   OPTIONS,
@@ -64,7 +66,7 @@ enum HttpEntityHeaderField {
   LAST_MODIFIED,
 };
 
-enum HEADER_TYPE {
+enum HeaderType {
   GENERAL,
   REQUEST,
   ENTITY
@@ -72,10 +74,12 @@ enum HEADER_TYPE {
 
 class HttpRequestLine {
 public:
+  HttpRequestLine(const std::string& raw_request_line);
+  HttpRequestLine() = default;
   virtual ~HttpRequestLine() {}
-  std::unique_ptr<std::string> uri;
+  std::string uri;
   HttpMethod method;
-  std::unique_ptr<std::string> protocol_version;
+  std::string protocol_version;
   std::string dumpMethod() {
     switch (method) {
       case OPTIONS: return "OPTIONS";
@@ -95,8 +99,8 @@ class HttpHeaderLine {
 public:
   virtual ~HttpHeaderLine() {}
   virtual std::string dumpField() = 0;
-  std::unique_ptr<std::string> value;
-  HEADER_TYPE type;
+  std::string value;
+  HeaderType type;
 };
 
 class HttpGeneralHeaderLine : public HttpHeaderLine {
@@ -172,21 +176,17 @@ public:
 
 class HttpRequest {
 public:
-  HttpRequest() {}
-  HttpRequest(HttpRequest&& request) :
-    request_line(std::move(request.request_line)),
-    header(std::move(request.header)) {}
-  HttpRequest &operator=(HttpRequest&& request) {
-    request_line = std::move(request.request_line);
-    header = std::move(request.header);
-    return *this;
-  }
+  HttpRequest(const std::string& raw_request);
   virtual ~HttpRequest() {}
-  std::unique_ptr<HttpRequestLine> request_line;
-  std::unique_ptr<std::vector<std::unique_ptr<HttpHeaderLine>>> header;
-private:
-  HttpRequest(const HttpRequest& request);
-  HttpRequest &operator=(const HttpRequest& request);
+  HttpRequestLine request_line;
+  std::vector<HttpHeaderLine> header;
+  HttpMethod method() const {
+    return request_line.method;
+  };
+  std::string uri() const {
+    return request_line.uri;
+  };
 };
 
-#endif //_HTTP_REQUEST_DEFS_H
+} // namespace http
+} // namespace lib

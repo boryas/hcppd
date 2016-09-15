@@ -1,40 +1,27 @@
+#include "server.h"
+
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "server.h"
-#include "http.tab.hpp"
-
-extern int yyparse();
-extern int yylex_destroy();
-extern int yy_scan_string(const char *str);
-extern HttpRequest *request;
-
 namespace hcppd {
 
-std::string HttpServer::handleRequest(const HttpRequest& request) {
-  std::unique_ptr<std::string> uri = std::move(request.request_line->uri);
+std::string HttpServer::handleRequest(const lib::http::HttpRequest& request) {
+  return request.uri();
   lib::sock::Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
   lib::sock::Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
   dyn_client.Connect(addr);
-  dyn_client.Write(uri->c_str());
+  dyn_client.Write(request.request_line.uri.c_str());
   std::string response;
   dyn_client.Read(&response);
   return response;
 }
 
-HttpRequest HttpServer::parseRequest(const std::string& requestString) {
-  syslog(LOG_INFO, requestString.c_str());
-  yy_scan_string(requestString.c_str());
-  yyparse();
-  yylex_destroy();
-  syslog(LOG_INFO, "parsed");
-  return std::move(*request);
-}
-
 std::string HttpServer::handleConnection() {
   std::string msg;
   sock_->Read(&msg);
-  return handleRequest(parseRequest(msg));
+  lib::http::HttpRequest req(msg);
+  syslog(LOG_INFO, req.request_line.uri.c_str());
+  return handleRequest(req);
 }
 
 void startDynamicContentServer() {
