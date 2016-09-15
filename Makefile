@@ -5,7 +5,7 @@ all: hcppd directory_server
 directory_server: directory_server.o
 	g++ $(CC_FLAGS) directory_server.o socket.o -o directory_server
 
-directory_server.o: directory_server.cpp socket.o http_response.h
+directory_server.o: directory_server.cpp socket.o lib/http/response.h
 	g++ $(CC_FLAGS) -c directory_server.cpp
 
 hcppd: hcppd.o lex.yy.o http.tab.o
@@ -32,7 +32,7 @@ http.tab.o: http.tab.cpp
 lex.yy.o: lex.yy.cpp
 	g++ $(CC_VERSION) -o $@ -c lex.yy.cpp
 
-http.tab.cpp: http.y http_request.h
+http.tab.cpp: http.y lib/http/request.h
 	bison -v -d -o http.tab.cpp http.y
 
 lex.yy.cpp: http.lex http.tab.cpp
