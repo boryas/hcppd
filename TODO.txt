@@ -1,8 +1,7 @@
-lower case function names
-refactor stuff into lib--better build setup?
 no more yacc--write a crappy parser
+lower case function names
+options/settings <-> JSON
 strings lib
 socket lib
 concurrency libs
 load testing to show difference between forks, pools, events
-options/settings <-> JSON

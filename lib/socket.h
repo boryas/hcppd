@@ -12,6 +12,7 @@
 
 #define MAXLINE 4096
 
+namespace lib {
 namespace sock {
 
 class Sockaddr {
@@ -55,4 +56,5 @@ private:
   char buffer_[MAXLINE];
 };
 
-}
+} // namespace sock
+} // namespace lib

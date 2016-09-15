@@ -4,8 +4,6 @@
 #include "server.h"
 #include "http.tab.hpp"
 
-using namespace sock;
-
 extern int yyparse();
 extern int yylex_destroy();
 extern int yy_scan_string(const char *str);
@@ -15,8 +13,8 @@ namespace hcppd {
 
 std::string HttpServer::handleRequest(const HttpRequest& request) {
   std::unique_ptr<std::string> uri = std::move(request.request_line->uri);
-  Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
-  Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
+  lib::sock::Socket dyn_client("/var/run/hcppd/sock", AF_LOCAL);
+  lib::sock::Sockaddr addr("/var/run/hcppd/sock", AF_LOCAL);
   dyn_client.Connect(addr);
   dyn_client.Write(uri->c_str());
   std::string response;
@@ -44,7 +42,7 @@ void startDynamicContentServer() {
 
 void HttpServer::serve() {
   syslog(LOG_INFO, "Server listening on %s", port.c_str());
-  sock_.reset(new Socket(port));
+  sock_.reset(new lib::sock::Socket(port));
   sock_->Bind();
   sock_->Listen();
   for ( ; ; ) {

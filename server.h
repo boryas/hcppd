@@ -16,6 +16,6 @@ private:
   std::string handleRequest(const HttpRequest& request);
   HttpRequest parseRequest(const std::string& requestString);
   std::string handleConnection();
-  std::unique_ptr<sock::Socket> sock_;
+  std::unique_ptr<lib::sock::Socket> sock_;
 };
 } // server

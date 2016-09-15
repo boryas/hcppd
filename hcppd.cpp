@@ -4,8 +4,6 @@
 #include "lib/options.h"
 #include "server.h"
 
-using namespace hcppd;
-using namespace sock;
 
 void sig_chld(int sig) {
   int stat;
@@ -22,7 +20,7 @@ int main(int argc, char **argv) {
   sa.sa_flags = SA_RESTART;
   sa.sa_handler = sig_chld;
   sigaction(SIGCHLD, &sa, NULL);
-  HttpServer server;
+  hcppd::HttpServer server;
   auto port = options.find("port");
   if (port != options.end()) {
     server.port = port->second;

@@ -4,6 +4,7 @@
 
 #define LISTENQ 10
 
+namespace lib {
 namespace sock {
 
 Sockaddr::Sockaddr(const std::string& service, sa_family_t family) {
@@ -160,4 +161,5 @@ int Socket::Read(std::string *msg) {
   return nread;
 }
 
-}
+} // socket
+} // lib
