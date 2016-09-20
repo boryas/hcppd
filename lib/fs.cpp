@@ -3,13 +3,33 @@
 #include <syslog.h>
 #include <sys/stat.h>
 
-#include <fstream>
 #include <sstream>
 
 namespace lib {
 namespace fs {
 
-Directory::Directory(const std::string path) : path(path) {};
+Stat::Stat(const std::string& path) {
+  struct stat st;
+  if (stat(path.c_str(), &st) == -1) {
+    if (errno == ENOENT) {
+      syslog(LOG_ERR, "path not found: %s: %m", path.c_str());
+      return;
+    }
+  }
+  if (st.st_mode & S_IFDIR) {
+    dir = true;
+  } else {
+    dir = false;
+  }
+}
+
+Directory::Directory(const std::string& path) : path(path) {};
+
+Directory::~Directory() {
+  if (dir_) {
+    closedir(dir_);
+  }
+}
 
 void Directory::open() {
   DIR* d;
@@ -17,14 +37,14 @@ void Directory::open() {
     syslog(LOG_ERR, "Error opening directory %s: %m", path.c_str());
     return;
   }
-  dir_.reset(d);
+  dir_ = d;
 }
 
 bool Directory::readNext() {
   if (!dir_) {
     return false;
   }
-  struct dirent* d = readdir(dir_.get());
+  struct dirent* d = readdir(dir_);
   if (!d) {
     return false;
   }
@@ -36,22 +56,13 @@ bool Directory::readNext() {
   return true;
 }
 
-File::File(const std::string path) : path(path) {};
+TextFile::TextFile(const std::string& path) : path(path) {};
 
-void File::open() {
-  fin_ = std::make_unique<std::ifstream>(path, std::ifstream::in);
+void TextFile::open() {
 }
 
-bool File::readNext() {
+bool TextFile::readNext() {
   std::string line;
-  if (!fin_) {
-    return false;
-  }
-  auto b = getline(*fin_, line);
-  if (!b) {
-    return false;
-  }
-  lines.push_back(line);
   return true;
 }
 

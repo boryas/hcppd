@@ -9,6 +9,17 @@
 #include "lib/options.h"
 #include "lib/socket.h"
 
+lib::http::HttpResponse respond(int status,
+                                const std::string& reason,
+                                const std::string& message) {
+  lib::http::HttpResponse response(status, reason, message);
+  response.status_line.protocol_version = PROTOCOL_VERSION;
+  response.status_line.status_code = status;
+  response.status_line.reason_phrase = reason;
+  response.message = message;
+  return response;
+}
+
 lib::http::HttpResponse handle(std::string uri) {
   syslog(LOG_INFO, "Responding to request for: %s", uri.c_str());
   struct stat st;

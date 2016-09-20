@@ -1,14 +1,26 @@
+#pragma once
+
 #include <dirent.h>
 
+#include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace lib {
 namespace fs {
 
+class Stat {
+ public:
+  Stat(const std::string& path);
+  bool dir;
+};
+
 template <class T>
 class File {
  public:
+  File() {}
+  virtual ~File() {}
   void read() {
     f().open();
     while (f().readNext()) {
@@ -17,28 +29,28 @@ class File {
   }
  private:
   T& f() { return *static_cast<T*>(this); }
-}
+};
 
-class Directory : File<Directory>{
+class Directory : public File<Directory> {
  public:
-  Directory(const std::string path);
-  std::string& path;
+  Directory(const std::string& path);
+  virtual ~Directory();
+  std::string path;
   void open();
   bool readNext();
   std::vector<std::string> children;
  private:
-  std::unique_ptr<DIR> dir_;
+  DIR* dir_;
 };
 
-class File {
+class TextFile : public File<TextFile> {
  public:
-  File(const std::string path);
-  std::string& path;
+  TextFile(const std::string& path);
+  virtual ~TextFile() = default;
+  std::string path;
   void open();
   bool readNext();
   std::vector<std::string> lines;
- private:
-  std::unique_ptr<std::ifstream> fin_;
 };
 
 } // namespace fs

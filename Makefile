@@ -3,12 +3,12 @@ CC_FLAGS = $(CC_VERSION) -Wall -Werror
 all: hcppd
 
 hcppd: hcppd.o
-	g++ $(CC_FLAGS) hcppd.o server.o socket.o options.o request.o -o hcppd
+	g++ $(CC_FLAGS) hcppd.o server.o socket.o options.o request.o response.o fs.o -o hcppd
 
 hcppd.o: hcppd.cpp server.o options.o
 	g++ $(CC_FLAGS) -c hcppd.cpp
 
-server.o: server.cpp server.h socket.o request.o
+server.o: server.cpp server.h socket.o request.o response.o fs.o
 	g++ $(CC_FLAGS) -c server.cpp
 
 fs.o: lib/fs.cpp lib/fs.h

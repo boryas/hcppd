@@ -9,7 +9,7 @@ namespace lib {
 namespace http {
 
 class HttpStatusLine {
-public:
+ public:
   HttpStatusLine() = default;
   HttpStatusLine(const std::string& protocol,
                  int status,
@@ -27,7 +27,7 @@ public:
 };
 
 class HttpResponse {
-public:
+ public:
   HttpResponse() = default;
   HttpResponse(int status,
                const std::string& reason,
@@ -41,6 +41,7 @@ public:
     std::stringstream ss;
     ss << status
        << "\r\n"
+       << "<!DOCTYPE html>"
        << "<html><title>boris make page</title>"
        << "<body>" << message << "</body></html>";
     return ss.str();
