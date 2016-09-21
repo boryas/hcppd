@@ -3,6 +3,7 @@
 #include <string>
 
 #include "lib/http/request.h"
+#include "lib/http/response.h"
 #include "lib/socket.h"
 
 namespace hcppd {
@@ -13,7 +14,7 @@ public:
   std::string dynamic_content_server;
   void serve();
 private:
-  std::string handleRequest(const lib::http::HttpRequest& request);
+  lib::http::HttpResponse handleRequest(const lib::http::HttpRequest& request);
   std::string handleConnection();
   std::unique_ptr<lib::sock::Socket> sock_;
 };
