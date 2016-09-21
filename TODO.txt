@@ -1,8 +1,9 @@
+helper functions for making html
+get new compiler for std::make_unique
 better logging lib
 do parsing in a way that handles bad input without crashing
 support dumping parsed request object
 parse METHOD
-choose error handling philosophy
 unit tests
 lower case function names
 options/settings <-> JSON
@@ -11,3 +12,4 @@ socket lib
 concurrency libs
 load testing to show difference between forks, pools, events
 parse http header and actually implement rfc???
+fork version needs to close if it gets stuck

@@ -1,14 +1,25 @@
 #pragma once
 
 #include <dirent.h>
+#include <stdio.h>
 
-#include <fstream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace lib {
 namespace fs {
+
+class FsError : public std::runtime_error {
+ public:
+  FsError() : std::runtime_error("FsError") {}
+};
+
+class PathNotFoundError : public FsError {
+ public:
+  PathNotFoundError() {}
+};
 
 class Stat {
  public:
@@ -16,41 +27,26 @@ class Stat {
   bool dir;
 };
 
-template <class T>
-class File {
- public:
-  File() {}
-  virtual ~File() {}
-  void read() {
-    f().open();
-    while (f().readNext()) {
-      continue;
-    }
-  }
- private:
-  T& f() { return *static_cast<T*>(this); }
-};
-
-class Directory : public File<Directory> {
+class Directory {
  public:
   Directory(const std::string& path);
   virtual ~Directory();
   std::string path;
-  void open();
-  bool readNext();
-  std::vector<std::string> children;
+  void read();
+  std::vector<std::string> contents;
  private:
   DIR* dir_;
 };
 
-class TextFile : public File<TextFile> {
+class File {
  public:
-  TextFile(const std::string& path);
-  virtual ~TextFile() = default;
+  File(const std::string& path);
+  virtual ~File();
   std::string path;
-  void open();
-  bool readNext();
+  void read();
   std::vector<std::string> lines;
+ private:
+  FILE* file_;
 };
 
 } // namespace fs

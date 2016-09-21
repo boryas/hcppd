@@ -11,20 +11,46 @@ namespace hcppd {
 
 std::string HttpServer::handleRequest(const lib::http::HttpRequest& request) {
   syslog(LOG_INFO, "Responding to request for: %s", request.uri().c_str());
-  lib::fs::Stat stat(request.uri());
+  bool is_dir;
+  try {
+    lib::fs::Stat stat(request.uri());
+    is_dir = stat.dir;
+  } catch (lib::fs::PathNotFoundError& e) {
+    lib::http::HttpResponse response(404, "Not Found!", "404 LOL");
+    return response.format();
+  } catch (lib::fs::FsError& e) {
+    lib::http::HttpResponse response(500, "Error stat-ing file!", "500 LOL");
+    return response.format();
+  }
   std::stringstream ss;
-  if (stat.dir) {
-    lib::fs::Directory d(request.uri());
-    d.read();
-    for (const auto& c : d.children) {
-      ss << "<a href=\"" << request.uri() << "/" << c << "\">" <<
-        request.uri() << "/" << c << "</a><br>" << std::endl;
+  if (is_dir) {
+    try {
+      lib::fs::Directory d(request.uri());
+      d.read();
+      for (const auto& c : d.contents) {
+        ss << "<a href=\"" << request.uri() << "/" << c << "\">" <<
+          request.uri() << "/" << c << "</a><br>" << std::endl;
+      }
+    } catch (lib::fs::PathNotFoundError& e) {
+      lib::http::HttpResponse response(404, "Not Found!", "");
+      return response.format();
+    } catch (lib::fs::FsError& e) {
+      lib::http::HttpResponse response(500, "Error reading dir!", "");
+      return response.format();
     }
   } else {
-    lib::fs::TextFile f(request.uri());
-    f.read();
-    for (const auto& l : f.lines) {
-      ss << l << "<br>" << std::endl;
+    try {
+      lib::fs::File f(request.uri());
+      f.read();
+      for (const auto& l : f.lines) {
+        ss << l << "<br>" << std::endl;
+      }
+    } catch (lib::fs::PathNotFoundError& e) {
+      lib::http::HttpResponse response(404, "Not Found!", "");
+      return response.format();
+    } catch (lib::fs::FsError& e) {
+      lib::http::HttpResponse response(500, "Error reading file!", "");
+      return response.format();
     }
   }
   lib::http::HttpResponse response(200, "OK", ss.str());
