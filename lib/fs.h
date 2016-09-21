@@ -2,6 +2,9 @@
 
 #include <dirent.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <memory>
 #include <stdexcept>
@@ -24,7 +27,10 @@ class PathNotFoundError : public FsError {
 class Stat {
  public:
   Stat(const std::string& path);
-  bool dir;
+  bool isDir() { return S_ISDIR(mode_); }
+  bool isRegularFile() { return S_ISREG(mode_); }
+ private:
+  mode_t mode_;
 };
 
 class Directory {

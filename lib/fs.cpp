@@ -1,7 +1,6 @@
 #include "fs.h"
 
 #include <syslog.h>
-#include <sys/stat.h>
 
 #include <sstream>
 
@@ -18,11 +17,7 @@ Stat::Stat(const std::string& path) {
       throw FsError();
     }
   }
-  if (st.st_mode & S_IFDIR) {
-    dir = true;
-  } else {
-    dir = false;
-  }
+  mode_ = st.st_mode;
 }
 
 Directory::Directory(const std::string& path) : path(path) {
