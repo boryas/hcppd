@@ -11,4 +11,3 @@ to run:
 
 supported options:
 --port: set the port the server will listen on
---dynamic_content_server: server to fire up to serve dynamic content
