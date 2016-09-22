@@ -4,18 +4,16 @@
 
 #include "lib/http/request.h"
 #include "lib/http/response.h"
+#include "lib/server.h"
 #include "lib/socket.h"
 
 namespace hcppd {
 
-class HttpServer {
+class HttpFsServer : public lib::server::BlockingServer<HttpFsServer> {
 public:
-  std::string port = "80";
-  std::string dynamic_content_server;
-  void serve();
+ std::string handle(const std::string& message);
 private:
-  lib::http::HttpResponse handleRequest(const lib::http::HttpRequest& request);
-  std::string handleConnection();
-  std::unique_ptr<lib::sock::Socket> sock_;
+ lib::http::HttpResponse handleRequest(const lib::http::HttpRequest& request);
 };
-} // server
+
+} // hcppd

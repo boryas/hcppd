@@ -8,7 +8,7 @@ hcppd: hcppd.o
 hcppd.o: hcppd.cpp server.o options.o
 	g++ $(CC_FLAGS) -c hcppd.cpp
 
-server.o: server.cpp server.h socket.o request.o response.o fs.o
+server.o: server.cpp server.h socket.o request.o response.o fs.o lib/server.h
 	g++ $(CC_FLAGS) -c server.cpp
 
 fs.o: lib/fs.cpp lib/fs.h

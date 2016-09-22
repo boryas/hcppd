@@ -20,10 +20,12 @@ int main(int argc, char **argv) {
   sa.sa_flags = SA_RESTART;
   sa.sa_handler = sig_chld;
   sigaction(SIGCHLD, &sa, NULL);
-  hcppd::HttpServer server;
+  hcppd::HttpFsServer server;
+  /*
   auto port = options.find("port");
   if (port != options.end()) {
     server.port = port->second;
   }
+  */
   server.serve();
 }

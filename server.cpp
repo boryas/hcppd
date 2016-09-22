@@ -8,7 +8,8 @@
 
 namespace hcppd {
 
-lib::http::HttpResponse HttpServer::handleRequest(const lib::http::HttpRequest& request) {
+lib::http::HttpResponse HttpFsServer::handleRequest(
+    const lib::http::HttpRequest& request) {
   syslog(LOG_INFO, "Responding to request for: %s", request.uri().c_str());
   std::stringstream ss;
   try {
@@ -40,34 +41,9 @@ lib::http::HttpResponse HttpServer::handleRequest(const lib::http::HttpRequest& 
   return response;
 }
 
-std::string HttpServer::handleConnection() {
-  std::string msg;
-  sock_->Read(&msg);
+std::string HttpFsServer::handle(const std::string& msg) {
   lib::http::HttpRequest req(msg);
   return handleRequest(req).format();
 }
 
-void HttpServer::serve() {
-  syslog(LOG_INFO, "HttpServer listening on %s", port.c_str());
-  sock_.reset(new lib::sock::Socket(port));
-  sock_->Bind();
-  sock_->Listen();
-  for ( ; ; ) {
-    sock_->Accept();
-    int pid = fork();
-    if (pid < 0) {
-      // error
-      syslog(LOG_WARNING, "failed to fork child to handle connection");
-    } else if (pid == 0) {
-      // child
-      close(sock_->getListenFd());
-      sock_->Write(handleConnection());
-      exit(0);
-    }
-    else {
-      // parent
-      close(sock_->getConnFd());
-    }
-  }
-}
 } //namespace hcppd
