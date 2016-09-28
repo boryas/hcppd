@@ -2,7 +2,7 @@
 #include <sys/wait.h>
 
 #include "lib/options.h"
-#include "servers/http_fs.h"
+#include "servers/blog.h"
 
 
 void sig_chld(int sig) {
@@ -20,6 +20,6 @@ int main(int argc, char **argv) {
   sa.sa_flags = SA_RESTART;
   sa.sa_handler = sig_chld;
   sigaction(SIGCHLD, &sa, NULL);
-  servers::HttpFsServer server(options["port"]);
+  servers::BlogServer server(options["port"], "/home/bb/blog");
   server.serve();
 }

@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "../lib/http/request.h"
-#include "../lib/http/response.h"
-#include "../lib/server.h"
+#include "lib/http/request.h"
+#include "lib/http/response.h"
+#include "lib/server.h"
 
 namespace servers {
 
@@ -17,4 +17,4 @@ private:
  lib::http::HttpResponse handleRequest(const lib::http::HttpRequest& request);
 };
 
-} // hcppd
+} // namespace servers
