@@ -2,12 +2,11 @@
 
 #include <string>
 
-#include "lib/http/request.h"
-#include "lib/http/response.h"
-#include "lib/server.h"
-#include "lib/socket.h"
+#include "../lib/http/request.h"
+#include "../lib/http/response.h"
+#include "../lib/server.h"
 
-namespace hcppd {
+namespace servers {
 
 class HttpFsServer : public lib::server::BlockingServer<HttpFsServer> {
 public:

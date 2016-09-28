@@ -1,4 +1,4 @@
-#include "server.h"
+#include "http_fs.h"
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -6,7 +6,7 @@
 
 #include "lib/fs.h"
 
-namespace hcppd {
+namespace servers {
 
 lib::http::HttpResponse HttpFsServer::handleRequest(
     const lib::http::HttpRequest& request) {
@@ -46,4 +46,4 @@ std::string HttpFsServer::handle(const std::string& msg) {
   return handleRequest(req).format();
 }
 
-} //namespace hcppd
+} //namespace servers

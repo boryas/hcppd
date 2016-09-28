@@ -2,6 +2,8 @@
 
 #include "socket.h"
 
+#include <syslog.h>
+
 namespace lib {
 namespace server {
 
