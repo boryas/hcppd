@@ -12,9 +12,9 @@ HttpRequestLine::HttpRequestLine(const std::string& raw_request_line) {
   std::string token;
   std::getline(ss, token, ' ');
   if (token == "GET") {
-    method = GET;
+    method = HttpMethod::GET;
   } else if (token == "POST") {
-    method = POST;
+    method = HttpMethod::POST;
   }
   std::getline(ss, token, ' ');
   uri = token;
