@@ -2,13 +2,18 @@
 
 #include <syslog.h>
 
+namespace lib {
+namespace options {
+
 static struct option long_options[] =
 {
   {"port", required_argument, nullptr, 'p'},
 };
 
 std::map<std::string, std::string> get_options(int argc, char **argv) {
-  std::map<std::string, std::string> options;
+  std::map<std::string, std::string> options = {
+    {"port", "80"}
+  };
   int c;
   int option_index = 0;
   while ((c = getopt_long(argc, argv, "p:",
@@ -27,3 +32,6 @@ void log_options(std::map<std::string, std::string> options) {
      syslog(LOG_INFO, "FLAG %s: %s", option.first.c_str(), option.second.c_str());
   }
 }
+
+} // namespace options
+} // namespace lib

@@ -11,6 +11,8 @@ namespace hcppd {
 
 class HttpFsServer : public lib::server::BlockingServer<HttpFsServer> {
 public:
+ HttpFsServer(const std::string& port)
+   : lib::server::BlockingServer<HttpFsServer>(port) {}
  std::string handle(const std::string& message);
 private:
  lib::http::HttpResponse handleRequest(const lib::http::HttpRequest& request);

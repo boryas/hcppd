@@ -12,20 +12,14 @@ void sig_chld(int sig) {
 }
 
 int main(int argc, char **argv) {
-  auto options = get_options(argc, argv);
-  log_options(options);
+  auto options = lib::options::get_options(argc, argv);
+  lib::options::log_options(options);
   daemon(1, 0);
   struct sigaction sa;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART;
   sa.sa_handler = sig_chld;
   sigaction(SIGCHLD, &sa, NULL);
-  hcppd::HttpFsServer server;
-  /*
-  auto port = options.find("port");
-  if (port != options.end()) {
-    server.port = port->second;
-  }
-  */
+  hcppd::HttpFsServer server(options["port"]);
   server.serve();
 }
