@@ -1,8 +1,9 @@
 hcppd
 =====
 
-For the lulz home made libs for creating servers to motivate learning how to write systems-y stuff in linux. in C++ 'cause insanity wolf (and also practice)
-Also included are some simple servers that use these libs. Currently: a terrible blog server that just looks up files in a given directory
+A pile of libraries for writing servers. Everything is implemented using only C++ standard libraries and libc. It's my little digital apple pie.
+
+My main goal is to learn more about systems programming and C++. The project that motivates the libraries is an http server that hosts a blog. A side goal is for the blog server to host a blog about what I learn while writing the libraries.
 
 to build:
 make
