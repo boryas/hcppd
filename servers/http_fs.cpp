@@ -19,13 +19,13 @@ lib::http::HttpResponse HttpFsServer::handleRequest(
       d.read();
       for (const auto& c : d.contents) {
         ss << "<a href=\"" << request.uri() << "/" << c << "\">" <<
-          request.uri() << "/" << c << "</a><br>" << std::endl;
+          request.uri() << "/" << c << "</a><br>\n";
       }
     } else if (stat.isRegularFile()) {
       lib::fs::File f(request.uri());
       f.read();
       for (const auto& l : f.lines) {
-        ss << l << "<br>" << std::endl;
+        ss << l << "<br>\n";
       }
     } else {
       throw std::runtime_error("bad file type, not a plain file or dir");
