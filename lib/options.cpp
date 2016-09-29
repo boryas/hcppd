@@ -10,8 +10,9 @@ static struct option long_options[] =
   {"port", required_argument, nullptr, 'p'},
 };
 
-std::map<std::string, std::string> get_options(int argc, char **argv) {
-  std::map<std::string, std::string> options = {
+std::unordered_map<std::string, std::string> get_options(
+    int argc, char **argv) {
+  std::unordered_map<std::string, std::string> options = {
     {"port", "80"}
   };
   int c;
@@ -27,7 +28,7 @@ std::map<std::string, std::string> get_options(int argc, char **argv) {
   return options;
 }
 
-void log_options(std::map<std::string, std::string> options) {
+void log_options(std::unordered_map<std::string, std::string> options) {
   for (const auto& option : options) {
      syslog(LOG_INFO, "FLAG %s: %s", option.first.c_str(), option.second.c_str());
   }

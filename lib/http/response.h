@@ -3,7 +3,7 @@
 #include<iostream>
 #include<sstream>
 #include<string>
-#include<vector>
+#include<unordered_map>
 
 namespace lib {
 namespace http {
@@ -34,7 +34,7 @@ class HttpResponse {
                const std::string& message);
   HttpStatusLine status_line;
   std::string message;
-  std::vector<std::string> header;
+  std::unordered_map<std::string, std::string> header;
 
   std::string format() const {
     std::string status = status_line.format();
