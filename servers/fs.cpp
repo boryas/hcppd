@@ -18,16 +18,16 @@ lib::http::HttpResponse FsServer::handleRequest(
     lib::fs::Stat stat(request.uri());
     if (stat.isDir()) {
       lib::fs::Directory d(request.uri());
-      d.read();
-      for (const auto& c : d.contents) {
+      auto contents = d.contents();
+      for (const auto& c : contents) {
         ss << "<a href=\"" << request.uri() << "/" << c << "\">" <<
-          request.uri() << "/" << c << "</a><br>\n";
+          request.uri() << "/" << c << "</a></br>\n";
       }
     } else if (stat.isRegularFile()) {
       lib::fs::File f(request.uri());
-      f.read();
-      for (const auto& l : f.lines) {
-        ss << l << "<br>\n";
+      auto lines = f.readLines();
+      for (const auto& l : lines) {
+        ss << l << "\n";
       }
     } else {
       throw std::runtime_error("bad file type, not a plain file or dir");

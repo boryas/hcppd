@@ -35,7 +35,8 @@ Directory::~Directory() {
   closedir(dir_);
 }
 
-void Directory::read() {
+std::vector<std::string> Directory::contents() {
+  std::vector<std::string> contents;
   errno = 0;
   struct dirent* d;
   while ((d = readdir(dir_))) {
@@ -43,39 +44,37 @@ void Directory::read() {
     if (p == "." || p == "..") {
       continue;
     }
-    contents.push_back(p);
+    contents.emplace_back(std::move(p));
   }
   if (errno != 0) {
     throw FsError();
   }
+  return contents;
 }
 
 File::File(const std::string& path) : path(path) {
-  if ((file_ = fopen(path.c_str(), "r")) == NULL) {
-    syslog(LOG_ERR, "Error opening file %s: %m", path.c_str());
-    if (errno == ENOENT) {
-      throw PathNotFoundError();
-    } else {
-      throw FsError();
-    }
-  }
+  f_ = std::make_unique<std::ifstream>(path);
 };
 
 File::~File() {
-  fclose(file_);
 };
 
-void File::read() {
-  errno = 0;
-  char *line = NULL;
-  size_t n = 0;
-  while((getline(&line, &n, file_)) != -1) {
-    lines.emplace_back(line);
+std::vector<std::string> File::readLines() {
+  std::vector<std::string> lines;
+  std::string line;
+  while (std::getline(*f_, line)) {
+    lines.emplace_back(std::move(line));
   }
-  free(line);
-  if (errno != 0) {
-    throw FsError();
+  return lines;
+}
+
+std::string File::read() {
+  std::stringstream ss;
+  std::string line;
+  while (std::getline(*f_, line)) {
+    ss << line;
   }
+  return ss.str();
 }
 
 } // namespace fs

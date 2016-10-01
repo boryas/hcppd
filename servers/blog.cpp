@@ -21,10 +21,7 @@ lib::http::HttpResponse BlogServer::handleRequest(
     if (stat.isRegularFile()) {
       ss << "<p>";
       lib::fs::File f(path);
-      f.read();
-      for (const auto& l : f.lines) {
-        ss << l;
-      }
+      ss << f.read();
       ss << "</p>";
     } else {
       lib::http::HttpResponse response(404, "Not Found!", "404 LOL");

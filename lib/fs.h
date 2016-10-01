@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -38,8 +39,7 @@ class Directory {
   Directory(const std::string& path);
   virtual ~Directory();
   std::string path;
-  void read();
-  std::vector<std::string> contents;
+  std::vector<std::string> contents();
  private:
   DIR* dir_;
 };
@@ -49,10 +49,10 @@ class File {
   File(const std::string& path);
   virtual ~File();
   std::string path;
-  void read();
-  std::vector<std::string> lines;
+  std::string read();
+  std::vector<std::string> readLines();
  private:
-  FILE* file_;
+  std::unique_ptr<std::ifstream> f_;
 };
 
 } // namespace fs
