@@ -41,9 +41,7 @@ class HttpResponse {
     std::stringstream ss;
     ss << status
        << "\r\n"
-       << "<!DOCTYPE html>"
-       << "<html><title>boris make page</title>"
-       << "<body>" << message << "</body></html>";
+       << message;
     return ss.str();
   }
 };

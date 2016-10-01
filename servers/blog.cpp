@@ -35,7 +35,8 @@ lib::http::HttpResponse BlogServer::handleRequest(
     lib::http::HttpResponse response(500, "Error with file!", "500 LOL");
     return response;
   }
-  lib::http::HttpResponse response(200, "OK", ss.str());
+  lib::http::HttpResponse response(200, "OK",
+      template_.populate({{"title", request.uri()}, {"body", ss.str()}}));
   return response;
 }
 

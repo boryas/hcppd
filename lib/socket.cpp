@@ -70,7 +70,7 @@ int Socket::Bind() {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to make socket address reusable %m");
   }
-  servaddr_.reset(new Sockaddr(service_, family_));
+  servaddr_ = std::make_unique<Sockaddr>(service_, family_);
   if (bind(listenfd_, servaddr_->sockaddr(), servaddr_->size()) == -1) {
     sockerr_ = errno;
     syslog(LOG_ERR, "Failed to bind socket %d; %m", listenfd_);
@@ -85,7 +85,7 @@ int Socket::Listen() {
     syslog(LOG_ERR, "Failed to listen on socket %d; %m", listenfd_);
     return -1;
   }
-  cliaddr_.reset(new Sockaddr(service_, family_));
+  cliaddr_ = std::make_unique<Sockaddr>(service_, family_);
   return 0;
 }
 

@@ -11,7 +11,7 @@ template <class Handler>
 class BlockingServer {
  public:
   BlockingServer(const std::string& port) {
-    socket.reset(new lib::sock::Socket(port));
+    socket = std::make_unique<lib::sock::Socket>(port);
     socket->Bind();
     socket->Listen();
   }
