@@ -4,7 +4,9 @@
 #include <unistd.h>
 #include <sstream>
 
+#include "lib/daemon.h"
 #include "lib/fs.h"
+#include "lib/options.h"
 
 namespace servers {
 
@@ -52,3 +54,12 @@ std::string BlogServer::handle(const std::string& msg) {
 }
 
 } //namespace servers
+
+
+int main(int argc, char **argv) {
+  lib::daemon::daemonize();
+  auto options = lib::options::get_options(argc, argv);
+  lib::options::log_options(options);
+  servers::BlogServer server(options["port"], "/home/bb/blog");
+  server.serve();
+}

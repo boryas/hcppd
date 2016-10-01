@@ -1,4 +1,4 @@
 #! /bin/sh
 
-sudo pkill hcppd
-sudo ./hcppd $@
+sudo pkill blogd
+sudo ./blogd $@
