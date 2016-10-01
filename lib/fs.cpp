@@ -72,7 +72,7 @@ std::string File::read() {
   std::stringstream ss;
   std::string line;
   while (std::getline(*f_, line)) {
-    ss << line;
+    ss << line << "\n";
   }
   return ss.str();
 }

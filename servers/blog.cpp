@@ -13,6 +13,13 @@ namespace servers {
 lib::http::HttpResponse BlogServer::handleRequest(
     const lib::http::HttpRequest& request) const {
   syslog(LOG_INFO, "Responding to request for: %s", request.uri().c_str());
+  if (request.uri().find(".css") != std::string::npos) {
+    auto path = root_dir_ + "/css" + request.uri();
+    syslog(LOG_INFO, "Finding css at %s", path.c_str());
+    lib::fs::File f(path);
+    auto css = f.read();
+    return lib::http::HttpResponse(css, "text/css");
+  }
   auto path = resolveUri(request.uri());
   syslog(LOG_INFO, "looking up post at: %s", path.c_str());
   std::stringstream ss;
@@ -34,8 +41,9 @@ lib::http::HttpResponse BlogServer::handleRequest(
     lib::http::HttpResponse response(500, "Error with file!", "500 LOL");
     return response;
   }
-  lib::http::HttpResponse response(200, "OK",
-      template_.populate({{"title", request.uri()}, {"body", ss.str()}}));
+  lib::http::HttpResponse response(
+      template_.populate({{"title", request.uri()}, {"body", ss.str()}}),
+      "text/html");
   return response;
 }
 
@@ -47,7 +55,9 @@ std::string BlogServer::resolveUri(const std::string& uri) const {
 
 std::string BlogServer::handle(const std::string& msg) {
   lib::http::HttpRequest req(msg);
-  return handleRequest(req).format();
+  auto r = handleRequest(req).format();
+  syslog(LOG_INFO, "Responding with: \n%s", r.c_str());
+  return r;
 }
 
 } //namespace servers

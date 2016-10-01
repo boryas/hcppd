@@ -16,9 +16,10 @@ public:
      root_dir_(root_dir),
      template_(std::make_unique<std::string>(
            "<!DOCTYPE html>"
+           "<link rel=\"stylesheet\" type=\"text/css\" href=\"foo.css\">"
            "<html>"
            "<title>{{title}}</title>"
-           "<body>{{body}}</body>"
+           "<body><p>{{body}}</p></body>"
            "</html>"
            )) {}
  std::string handle(const std::string& message);

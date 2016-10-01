@@ -1,9 +1,10 @@
 #pragma once
 
-#include<iostream>
-#include<sstream>
-#include<string>
-#include<unordered_map>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <unordered_map>
 
 namespace lib {
 namespace http {
@@ -21,7 +22,7 @@ class HttpStatusLine {
   std::string format() const {
     std::stringstream ss;
     ss << protocol_version << " " << status_code << " "
-       << reason_phrase << "\r\n";
+       << reason_phrase;
     return ss.str();
   }
 };
@@ -29,6 +30,10 @@ class HttpStatusLine {
 class HttpResponse {
  public:
   HttpResponse() = default;
+  // OK Response
+  HttpResponse(const std::string& message,
+               const std::string& content_type);
+  // Error Response
   HttpResponse(int status,
                const std::string& reason,
                const std::string& message);
@@ -36,14 +41,7 @@ class HttpResponse {
   std::string message;
   std::unordered_map<std::string, std::string> header;
 
-  std::string format() const {
-    std::string status = status_line.format();
-    std::stringstream ss;
-    ss << status
-       << "\r\n"
-       << message;
-    return ss.str();
-  }
+  std::string format() const;
 };
 
 } // namespace http
