@@ -4,13 +4,16 @@ CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
 all: blog_server fs_server
 
 blog_server: blog_server.o
-	g++ $(CC_FLAGS) blog_server.o socket.o options.o request.o response.o fs.o html.o daemon.o -o blogd
-
-blog_server.o: servers/blog.cpp servers/blog.h socket.o request.o response.o fs.o html.o daemon.o options.o lib/server.h
-	g++ $(CC_FLAGS) -c servers/blog.cpp -o blog_server.o
+	g++ $(CC_FLAGS) blog_server.o socket.o options.o request.o response.o resource.o fs.o html.o daemon.o -o blogd
 
 fs_server: fs_server.o
 	g++ $(CC_FLAGS) fs_server.o socket.o options.o request.o response.o fs.o html.o daemon.o -o fsd
+
+blog_server.o: servers/blog/blog.cpp servers/blog/blog.h resource.o socket.o request.o response.o fs.o html.o daemon.o options.o lib/server.h
+	g++ $(CC_FLAGS) -c servers/blog/blog.cpp -o blog_server.o
+
+resource.o: servers/blog/resource.cpp servers/blog/resource.h
+	g++ $(CC_FLAGS) -c servers/blog/resource.cpp -o resource.o
 
 fs_server.o: servers/fs.cpp servers/fs.h socket.o request.o response.o fs.o daemon.o options.o lib/server.h
 	g++ $(CC_FLAGS) -c servers/fs.cpp -o fs_server.o
