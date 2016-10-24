@@ -12,6 +12,15 @@
 namespace servers {
 namespace blog {
 
+auto constexpr TEMPLATE_FILE = "/home/bb/blog/templates/post.html";
+
+BlogServer::BlogServer(const std::string& port)
+ : lib::server::BlockingServer<BlogServer>(port) {
+   auto t = std::make_unique<std::string>(
+       lib::fs::readFile(TEMPLATE_FILE));
+   template_.reset(new lib::html::HtmlTemplate(std::move(t)));
+}
+
 lib::http::HttpResponse BlogServer::handleRequest(
     const lib::http::HttpRequest& request) const {
   syslog(LOG_INFO, "Responding to request for: %s", request.uri().c_str());
@@ -23,7 +32,7 @@ lib::http::HttpResponse BlogServer::handleRequest(
         {"title", request.uri()},
         {"body", post.get()}
       };
-      auto html = template_.populate(contents);
+      auto html = template_->populate(contents);
       return lib::http::HttpResponse(html, "text/html");
     } else {
       Css css(request.uri());

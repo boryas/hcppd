@@ -55,5 +55,7 @@ class File {
   std::unique_ptr<std::ifstream> f_;
 };
 
+std::string readFile(const std::string& path);
+
 } // namespace fs
 } // namespace lib

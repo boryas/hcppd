@@ -77,5 +77,14 @@ std::string File::read() {
   return ss.str();
 }
 
+std::string readFile(const std::string& path) {
+  Stat s(path);
+  if (!s.isRegularFile()) {
+    throw FsError();
+  }
+  File f(path);
+  return f.read();
+}
+
 } // namespace fs
 } // namespace lib
