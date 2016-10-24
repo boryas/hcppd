@@ -30,7 +30,7 @@ lib::http::HttpResponse BlogServer::handleRequest(
       BlogPost post(request.uri());
       std::unordered_map<std::string, std::string> contents = {
         {"title", request.uri()},
-        {"body", post.get()}
+        {"post", post.get()}
       };
       auto html = template_->populate(contents);
       return lib::http::HttpResponse(html, "text/html");
