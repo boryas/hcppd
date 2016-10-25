@@ -14,7 +14,7 @@ Stat::Stat(const std::string& path) {
     if (errno == ENOENT) {
       throw PathNotFoundError(path);
     } else {
-      throw FsError("Failed to stat " + path + " " + strerror(errno));
+      throw FsError("Failed to stat " + path + ": " + strerror(errno));
     }
   }
   mode_ = st.st_mode;
@@ -26,7 +26,7 @@ Directory::Directory(const std::string& path) : path(path) {
       throw PathNotFoundError(path);
     } else {
       throw FsError("Failed to open directory: " + path +
-          " " + strerror(errno));
+          ": " + strerror(errno));
     }
   }
 };
@@ -48,7 +48,7 @@ std::vector<std::string> Directory::contents() {
   }
   if (errno != 0) {
     throw FsError("Failed to read contents of directory " + path +
-        " " + strerror(errno));
+        ": " + strerror(errno));
   }
   return contents;
 }
@@ -82,7 +82,7 @@ std::string readFile(const std::string& path) {
   Stat s(path);
   if (!s.isRegularFile()) {
     throw FsError("Failed to read file " + path + 
-        "it is not a regular file");
+        ": it is not a regular file");
   }
   File f(path);
   return f.read();

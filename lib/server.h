@@ -11,33 +11,33 @@ template <class Handler>
 class BlockingServer {
  public:
   BlockingServer(const std::string& port) {
-    socket = std::make_unique<lib::sock::Socket>(port);
-    socket->Bind();
-    socket->Listen();
+    listen_sock = std::make_unique<lib::sock::Socket>();
+    listen_sock->bind_(port);
+    listen_sock->listen_();
   }
   virtual ~BlockingServer() {}
   void serve() {
     for ( ; ; ) {
-      socket->Accept();
+      auto conn_sock = listen_sock->accept_();
       int pid = fork();
       if (pid < 0) {
         // error
         syslog(LOG_WARNING, "failed to fork child to handle connection");
       } else if (pid == 0) {
         // child
-        close(socket->getListenFd());
+        listen_sock.reset();
         std::string msg;
-        socket->Read(&msg);
-        socket->Write(handler().handle(msg));
+        conn_sock->read_(msg);
+        conn_sock->write_(handler().handle(msg));
         exit(0);
       }
       else {
         // parent
-        close(socket->getConnFd());
+        conn_sock.reset();
       }
     }
   }
-  std::unique_ptr<lib::sock::Socket> socket;
+  std::unique_ptr<lib::sock::Socket> listen_sock;
  private:
   Handler& handler() { return *static_cast<Handler*>(this); }
 };

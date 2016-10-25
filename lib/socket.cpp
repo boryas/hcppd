@@ -1,23 +1,30 @@
 #include "socket.h"
 
+#include <errno.h>
 #include <syslog.h>
+#include <string.h>
 
 #define LISTENQ 10
 
 namespace lib {
 namespace sock {
 
-Sockaddr::Sockaddr(const std::string& service, sa_family_t family) {
+Sockaddr::Sockaddr(const std::string& port, sa_family_t family) {
+  init(port, family);
+}
+
+void Sockaddr::init(const std::string& port, sa_family_t family) {
+  this->port = port;
   if (family == AF_LOCAL) {
-    syslog(LOG_INFO, "Creating Unix Domain socket address: %s", service.c_str());
+    syslog(LOG_INFO, "Creating Unix Domain socket address: %s", port.c_str());
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = family;
-    memmove(addr.sun_path, service.c_str(), service.size());
+    memmove(addr.sun_path, port.c_str(), port.size());
     memmove(&sockaddr_, (struct sockaddr_storage *)&addr, sizeof(addr));
     return;
   }
-  syslog(LOG_INFO, "Creating socket address on port: %s", service.c_str());
+  syslog(LOG_INFO, "Creating socket address on port: %s", port.c_str());
   int status;
   struct addrinfo hints;
   struct addrinfo *addrinfos;
@@ -25,7 +32,7 @@ Sockaddr::Sockaddr(const std::string& service, sa_family_t family) {
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   hints.ai_family = family;
-  status = getaddrinfo(nullptr, service.c_str(), &hints, &addrinfos);
+  status = getaddrinfo(nullptr, port.c_str(), &hints, &addrinfos);
   if (status != 0) {
     syslog(LOG_INFO, "Failed to create socket address: %s", gai_strerror(status));
   }
@@ -45,120 +52,101 @@ socklen_t Sockaddr::size() const {
   return sizeof(sockaddr_);
 }
 
-
-Socket::Socket(const std::string& service) {
-  service_ = service;
-  family_ = AF_INET6;
-}
-
-Socket::Socket(const std::string& service, sa_family_t family) {
-  service_ = service;
-  family_ = family;
-}
-
-Socket::~Socket() {
-  close(listenfd_);
-}
-
-int Socket::Bind() {
-  if ((listenfd_ = socket(family_, SOCK_STREAM, 0)) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to create socket %m");
+Socket::Socket() {
+  if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) == -1) {
+    throw SocketError("Failed to create socket");
   }
   int y = 1;
-  if ((setsockopt(listenfd_, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y))) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to make socket address reusable %m");
+  if ((setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y))) == -1) {
+    throw SocketError("Failed to make socket address reusuable");
   }
-  servaddr_ = std::make_unique<Sockaddr>(service_, family_);
-  if (bind(listenfd_, servaddr_->sockaddr(), servaddr_->size()) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to bind socket %d; %m", listenfd_);
-    return -1;
-  }
-  return 0;
+  state_ = SocketState::INITIALIZED;
 }
 
-int Socket::Listen() {
-  if (listen(listenfd_, LISTENQ) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to listen on socket %d; %m", listenfd_);
-    return -1;
-  }
-  cliaddr_ = std::make_unique<Sockaddr>(service_, family_);
-  return 0;
+Socket::Socket(int fd, const Sockaddr& local, const Sockaddr& remote) 
+    : fd(fd), local_(local), remote_(remote) {
+  state_ = SocketState::CONNECTED;
 }
 
-int Socket::Accept() {
-  clilen_ = cliaddr_->size();
-  if ((connfd_ = accept(listenfd_, cliaddr_->sockaddr(), &clilen_)) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to accept on socket %d; %m", listenfd_);
-    return -1;
+void Socket::bind_(const std::string& port) {
+  if (state_ != SocketState::INITIALIZED) {
+    throw SocketError("Failed to bind socket. Invalid socket state");
   }
-  return 0;
+  local_.init(port, AF_INET6);
+  if (bind(fd, local_.sockaddr(), local_.size()) == -1) {
+    throw SocketError("Failed to bind socket to port" + port);
+  }
+  state_ = SocketState::BOUND;
 }
 
-int Socket::Connect(const Sockaddr& addr) {
-  if ((connfd_ = socket(addr.sockaddr()->sa_family, SOCK_STREAM, 0)) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to create socket %m");
+void Socket::listen_() {
+  if (state_ != SocketState::BOUND) {
+    throw SocketError("Failed to listen on socket. Invalid socket state");
   }
-
-  if (connect(connfd_, addr.sockaddr(), addr.size()) == -1) {
-    sockerr_ = errno;
-    syslog(LOG_ERR, "Failed to connect on socket %d; %m", listenfd_);
-    return -1;
+  if (listen(fd, LISTENQ) == -1) {
+    throw SocketError("Failed to listen on socket" + fd);
   }
-  return 0;
+  state_ = SocketState::LISTENING;
 }
 
-int Socket::Writen(const char *msg, size_t n) {
+std::unique_ptr<Socket> Socket::accept_() {
+  if (state_ != SocketState::LISTENING) {
+    throw SocketError("Failed to accept on socket. Invalid socket state");
+  }
+  remote_.init(local_.port, AF_INET6);
+  socklen_t remote_len = remote_.size();
+  int connfd;
+  if ((connfd = accept(fd, remote_.sockaddr(), &remote_len)) == -1) {
+    throw SocketError("Failed to accept on socket" + fd);
+  }
+  return std::make_unique<Socket>(connfd, remote_, local_);
+}
+
+void Socket::writen(const char *msg, size_t n) {
   ssize_t written;
   size_t nleft = n;
-  int sockerr;
   const char *loc;
   loc = (const char *)msg;
 
   while (nleft > 0) {
-    if ((written = write(connfd_, loc, nleft)) <= 0) {
-      sockerr = errno;
-      if (sockerr != EINTR) {
-        sockerr_ = sockerr;
+    if ((written = write(fd, loc, nleft)) <= 0) {
+      if (errno != EINTR) {
         syslog(LOG_ERR, "Write error; %m");
-        return -1;
+        throw SocketError("Failed while writing to socket");
       }
     }
     nleft -= written;
     loc += written;
   }
-  return 0;
 }
 
-int Socket::Write(const std::string& msg) {
-  return Writen(msg.c_str(), msg.size());
+void Socket::write_(const std::string& msg) {
+  writen(msg.c_str(), msg.size());
 }
 
-int Socket::Read(std::string *msg) {
+int Socket::read_(std::string& msg) {
   ssize_t nread;
   ssize_t n;
-  int sockerr;
   bool keep_reading = true;
   while (keep_reading) {
-    n = read(connfd_, buffer_, MAXLINE);
+    n = read(fd, buffer_, MAXLINE);
     if (n < 0) {
-      sockerr = errno;
-      if (sockerr != EINTR) {
-        sockerr_ = sockerr;
+      if (errno != EINTR) {
         syslog(LOG_ERR, "Read error; %m");
-        return -1;
+        throw SocketError("Failed while reading from socket");
       }
     }
     nread += n;
-    *msg += buffer_;
+    msg += buffer_;
     keep_reading = false;
   }
   return nread;
+}
+
+Socket::~Socket() {
+  if (state_ != SocketState::UNINITIALIZED) {
+    close(fd);
+  }
 }
 
 } // socket

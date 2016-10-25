@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <stdexcept>
 
 #define MAXLINE 4096
 
@@ -16,43 +17,48 @@ namespace lib {
 namespace sock {
 
 class Sockaddr {
-public:
-  Sockaddr(const std::string& service, sa_family_t family);
+ public:
+  Sockaddr() {};
+  Sockaddr(const std::string& port, sa_family_t family);
+  void init(const std::string& port, sa_family_t family);
   struct sockaddr *sockaddr() const;
   socklen_t size() const;
-private:
+  std::string port;
+ private:
   struct sockaddr_storage sockaddr_;
 };
 
+enum class SocketState {
+  UNINITIALIZED,
+  INITIALIZED,
+  BOUND,
+  LISTENING,
+  CONNECTED,
+};
+
+class SocketError : public std::runtime_error {
+ public:
+  SocketError(const std::string& reason)
+    : std::runtime_error("SocketError: " + reason) {}
+};
+
 class Socket {
-public:
-  Socket(const std::string& service);
-  Socket(const std::string& service, sa_family_t family);
-  ~Socket();
-  int Bind();
-  int Listen();
-  int Accept();
-  int Connect(const Sockaddr& addr);
-  int Writen(const char *msg, size_t n);
-  int Write(const std::string& msg);
-  int Read(std::string *msg);
-
-  int getListenFd() {
-    return listenfd_;
-  }
-  int getConnFd() {
-    return connfd_;
-  }
-
-private:
-  std::unique_ptr<Sockaddr> servaddr_;
-  std::unique_ptr<Sockaddr> cliaddr_;
-  std::string service_;
-  int connfd_;
-  int listenfd_;
-  int sockerr_;
-  socklen_t clilen_;
-  sa_family_t family_;
+ public:
+  Socket();
+  Socket(int fd, const Sockaddr& local, const Sockaddr& remote);
+  virtual ~Socket();
+  void bind_(const std::string& port);
+  void listen_();
+  std::unique_ptr<Socket> accept_();
+  void connect_();
+  void write_(const std::string& msg);
+  int read_(std::string& msg);
+  int fd;
+ private:
+  void writen(const char *msg, size_t n);
+  SocketState state_ = SocketState::UNINITIALIZED;
+  Sockaddr local_;
+  Sockaddr remote_;
   char buffer_[MAXLINE];
 };
 
