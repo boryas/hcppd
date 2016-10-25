@@ -50,7 +50,6 @@ class Socket {
   void bind_(const std::string& port);
   void listen_();
   std::unique_ptr<Socket> accept_();
-  void connect_();
   void write_(const std::string& msg);
   int read_(std::string& msg);
   int fd;
