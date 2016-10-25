@@ -17,12 +17,14 @@ namespace fs {
 
 class FsError : public std::runtime_error {
  public:
-  FsError() : std::runtime_error("FsError") {}
+  FsError(const std::string& reason)
+    : std::runtime_error("FsError: " + reason) {}
 };
 
 class PathNotFoundError : public FsError {
  public:
-  PathNotFoundError() {}
+  PathNotFoundError(const std::string& path)
+    : FsError("Path not found: " + path) {}
 };
 
 class Stat {

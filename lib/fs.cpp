@@ -1,6 +1,7 @@
 #include "fs.h"
 
-#include <syslog.h>
+#include <errno.h>
+#include <string.h>
 
 #include <sstream>
 
@@ -11,10 +12,9 @@ Stat::Stat(const std::string& path) {
   struct stat st;
   if (stat(path.c_str(), &st) == -1) {
     if (errno == ENOENT) {
-      syslog(LOG_ERR, "path not found: %s: %m", path.c_str());
-      throw PathNotFoundError();
+      throw PathNotFoundError(path);
     } else {
-      throw FsError();
+      throw FsError("Failed to stat " + path + " " + strerror(errno));
     }
   }
   mode_ = st.st_mode;
@@ -22,11 +22,11 @@ Stat::Stat(const std::string& path) {
 
 Directory::Directory(const std::string& path) : path(path) {
   if ((dir_ = opendir(path.c_str())) == NULL) {
-    syslog(LOG_ERR, "Error opening directory %s: %m", path.c_str());
     if (errno == ENOENT) {
-      throw PathNotFoundError();
+      throw PathNotFoundError(path);
     } else {
-      throw FsError();
+      throw FsError("Failed to open directory: " + path +
+          " " + strerror(errno));
     }
   }
 };
@@ -47,7 +47,8 @@ std::vector<std::string> Directory::contents() {
     contents.emplace_back(std::move(p));
   }
   if (errno != 0) {
-    throw FsError();
+    throw FsError("Failed to read contents of directory " + path +
+        " " + strerror(errno));
   }
   return contents;
 }
@@ -80,7 +81,8 @@ std::string File::read() {
 std::string readFile(const std::string& path) {
   Stat s(path);
   if (!s.isRegularFile()) {
-    throw FsError();
+    throw FsError("Failed to read file " + path + 
+        "it is not a regular file");
   }
   File f(path);
   return f.read();

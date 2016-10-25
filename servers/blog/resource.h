@@ -15,7 +15,8 @@ enum class ResourceType {
 
 class ResourceError : public std::runtime_error {
  public:
-  ResourceError() : std::runtime_error("ResourceError") {}
+  ResourceError(const std::string& reason) 
+    : std::runtime_error("ResourceError: " + reason) {}
 };
 
 ResourceType resolveResourceType(const std::string& request_uri);
@@ -27,7 +28,7 @@ class Resource {
     auto path = t().resolveUri(request_uri);
     lib::fs::Stat s(path);
     if (!s.isRegularFile()) {
-      throw ResourceError();
+      throw ResourceError("Resource is not a regular file");
     }
     f_ = std::make_unique<lib::fs::File>(path);
   }

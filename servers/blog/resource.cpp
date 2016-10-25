@@ -15,7 +15,7 @@ ResourceType resolveResourceType(const std::string& request_uri) {
   if (extension == ".css") {
     return ResourceType::CSS;
   }
-  throw ResourceError();
+  throw ResourceError("Unsupported file extension: " + extension);
 }
 
 std::string BlogPost::resolveUri(const std::string& request_uri) const {
