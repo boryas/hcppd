@@ -11,7 +11,7 @@
 #include <string>
 #include <stdexcept>
 
-#define MAXLINE 4096
+#include "fd.h"
 
 namespace lib {
 namespace sock {
@@ -45,20 +45,19 @@ class SocketError : public std::runtime_error {
 class Socket {
  public:
   Socket();
-  Socket(int fd, const Sockaddr& local, const Sockaddr& remote);
-  virtual ~Socket();
+  Socket(std::unique_ptr<lib::fd::Fd> fd,
+         const Sockaddr& local,
+         const Sockaddr& remote);
   void bind_(const std::string& port);
   void listen_();
   std::unique_ptr<Socket> accept_();
   void write_(const std::string& msg);
   int read_(std::string& msg);
-  int fd;
  private:
-  void writen(const char *msg, size_t n);
+  std::unique_ptr<lib::fd::Fd> fd_;
   SocketState state_ = SocketState::UNINITIALIZED;
   Sockaddr local_;
   Sockaddr remote_;
-  char buffer_[MAXLINE];
 };
 
 } // namespace sock

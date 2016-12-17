@@ -4,12 +4,12 @@ CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
 all: blog_server fs_server
 
 blog_server: blog_server.o
-	g++ $(CC_FLAGS) blog_server.o socket.o options.o request.o response.o resource.o fs.o html.o daemon.o -o blogd
+	g++ $(CC_FLAGS) blog_server.o socket.o fd.o options.o request.o response.o resource.o fs.o html.o daemon.o -o blogd
 
 fs_server: fs_server.o
-	g++ $(CC_FLAGS) fs_server.o socket.o options.o request.o response.o fs.o html.o daemon.o -o fsd
+	g++ $(CC_FLAGS) fs_server.o socket.o fd.o options.o request.o response.o fs.o html.o daemon.o -o fsd
 
-blog_server.o: servers/blog/blog.cpp servers/blog/blog.h resource.o socket.o request.o response.o fs.o html.o daemon.o options.o lib/server.h
+blog_server.o: servers/blog/blog.cpp servers/blog/blog.h resource.o socket.o fd.o request.o response.o fs.o html.o daemon.o options.o lib/server.h
 	g++ $(CC_FLAGS) -c servers/blog/blog.cpp -o blog_server.o
 
 resource.o: servers/blog/resource.cpp servers/blog/resource.h
@@ -30,8 +30,11 @@ response.o: lib/http/response.cpp lib/http/response.h
 request.o: lib/http/request.cpp lib/http/request.h
 	g++ $(CC_FLAGS) -c lib/http/request.cpp
 
-socket.o: lib/socket.cpp lib/socket.h
+socket.o: lib/socket.cpp lib/socket.h fd.o
 	g++ $(CC_FLAGS) -c lib/socket.cpp
+
+fd.o: lib/fd.cpp lib/fd.h
+	g++ $(CC_FLAGS) -c lib/fd.cpp
 
 options.o: lib/options.cpp lib/options.h
 	g++ $(CC_FLAGS) -c lib/options.cpp

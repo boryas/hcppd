@@ -53,9 +53,11 @@ socklen_t Sockaddr::size() const {
 }
 
 Socket::Socket() {
+  int fd;
   if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) == -1) {
     throw SocketError("Failed to create socket");
   }
+  fd_ = std::make_unique<lib::fd::Fd>(fd);
   int y = 1;
   if ((setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y))) == -1) {
     throw SocketError("Failed to make socket address reusuable");
@@ -63,8 +65,10 @@ Socket::Socket() {
   state_ = SocketState::INITIALIZED;
 }
 
-Socket::Socket(int fd, const Sockaddr& local, const Sockaddr& remote) 
-    : fd(fd), local_(local), remote_(remote) {
+Socket::Socket(std::unique_ptr<lib::fd::Fd> fd,
+               const Sockaddr& local,
+               const Sockaddr& remote)
+    : fd_(std::move(fd)), local_(local), remote_(remote) {
   state_ = SocketState::CONNECTED;
 }
 
@@ -73,7 +77,7 @@ void Socket::bind_(const std::string& port) {
     throw SocketError("Failed to bind socket. Invalid socket state");
   }
   local_.init(port, AF_INET6);
-  if (bind(fd, local_.sockaddr(), local_.size()) == -1) {
+  if (bind(fd_->fd, local_.sockaddr(), local_.size()) == -1) {
     throw SocketError("Failed to bind socket to port" + port);
   }
   state_ = SocketState::BOUND;
@@ -83,8 +87,8 @@ void Socket::listen_() {
   if (state_ != SocketState::BOUND) {
     throw SocketError("Failed to listen on socket. Invalid socket state");
   }
-  if (listen(fd, LISTENQ) == -1) {
-    throw SocketError("Failed to listen on socket" + fd);
+  if (listen(fd_->fd, LISTENQ) == -1) {
+    throw SocketError("Failed to listen on socket" + fd_->fd);
   }
   state_ = SocketState::LISTENING;
 }
@@ -96,57 +100,19 @@ std::unique_ptr<Socket> Socket::accept_() {
   remote_.init(local_.port, AF_INET6);
   socklen_t remote_len = remote_.size();
   int connfd;
-  if ((connfd = accept(fd, remote_.sockaddr(), &remote_len)) == -1) {
-    throw SocketError("Failed to accept on socket" + fd);
+  if ((connfd = accept(fd_->fd, remote_.sockaddr(), &remote_len)) == -1) {
+    throw SocketError("Failed to accept on socket" + fd_->fd);
   }
-  return std::make_unique<Socket>(connfd, remote_, local_);
-}
-
-void Socket::writen(const char *msg, size_t n) {
-  ssize_t written;
-  size_t nleft = n;
-  const char *loc;
-  loc = (const char *)msg;
-
-  while (nleft > 0) {
-    if ((written = write(fd, loc, nleft)) <= 0) {
-      if (errno != EINTR) {
-        syslog(LOG_ERR, "Write error; %m");
-        throw SocketError("Failed while writing to socket");
-      }
-    }
-    nleft -= written;
-    loc += written;
-  }
+  return std::make_unique<Socket>(
+      std::make_unique<lib::fd::Fd>(connfd), remote_, local_);
 }
 
 void Socket::write_(const std::string& msg) {
-  writen(msg.c_str(), msg.size());
+  fd_->write_(msg);
 }
 
 int Socket::read_(std::string& msg) {
-  ssize_t nread;
-  ssize_t n;
-  bool keep_reading = true;
-  while (keep_reading) {
-    n = read(fd, buffer_, MAXLINE);
-    if (n < 0) {
-      if (errno != EINTR) {
-        syslog(LOG_ERR, "Read error; %m");
-        throw SocketError("Failed while reading from socket");
-      }
-    }
-    nread += n;
-    msg += buffer_;
-    keep_reading = false;
-  }
-  return nread;
-}
-
-Socket::~Socket() {
-  if (state_ != SocketState::UNINITIALIZED) {
-    close(fd);
-  }
+  return fd_->read_(msg);
 }
 
 } // socket
