@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "lib/http/request.h"
 
@@ -30,6 +31,7 @@ class Parser {
  private:
   ParserState state_ = ParserState::REQUEST_LINE;
   HttpRequest req_;
+  std::vector<std::shared_ptr<std::string>> chunks_;
 };
 
 } // namespace parse

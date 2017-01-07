@@ -11,8 +11,10 @@ bool Parser::hungry() const {
 }
 
 void Parser::consume(std::unique_ptr<std::string> chunk) {
-  syslog(LOG_INFO, chunk->c_str());
-  std::stringstream ss(*chunk);
+  auto cur = std::shared_ptr<std::string>(std::move(chunk));
+  chunks_.emplace_back(cur);
+  syslog(LOG_INFO, cur->c_str());
+  std::stringstream ss(*cur);
   std::string raw_rl;
   std::getline(ss, raw_rl, '\n');
   syslog(LOG_INFO, raw_rl.c_str());
