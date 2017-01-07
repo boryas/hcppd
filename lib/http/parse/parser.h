@@ -17,7 +17,9 @@ class ParserError : public std::runtime_error {
 };
 
 enum class ParserState {
-  REQUEST_LINE,
+  REQUEST_LINE_METHOD,
+  REQUEST_LINE_URI,
+  REQUEST_LINE_PROT,
   HEADER,
   BODY,
   DONE,
@@ -29,7 +31,8 @@ class Parser {
   void consume(std::unique_ptr<std::string> chunk);
   HttpRequest request() const;
  private:
-  ParserState state_ = ParserState::REQUEST_LINE;
+  void consumeToken(const std::string& token);
+  ParserState state_ = ParserState::REQUEST_LINE_METHOD;
   HttpRequest req_;
   std::vector<std::shared_ptr<std::string>> chunks_;
 };

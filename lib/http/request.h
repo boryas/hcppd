@@ -74,11 +74,8 @@ enum class HeaderType {
 
 class HttpRequestLine {
 public:
-  HttpRequestLine(const std::string& raw_request_line);
-  HttpRequestLine() = default;
-  virtual ~HttpRequestLine() {}
-  std::string uri;
   HttpMethod method;
+  std::string uri;
   std::string protocol_version;
   std::string dumpMethod() {
     switch (method) {
