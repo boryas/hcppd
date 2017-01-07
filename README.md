@@ -1,4 +1,4 @@
-hcppd
+Simple Software From Scratch
 =====
 
 A pile of libraries for writing servers. Everything is implemented using only C++ standard libraries and libc. It's my little digital apple pie.
