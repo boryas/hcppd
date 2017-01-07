@@ -17,7 +17,7 @@ class Fd {
   Fd(int fd);
   virtual ~Fd();
   void write_(const std::string& msg);
-  int read_(std::string& msg);
+  size_t readn(std::string& buf, size_t n);
   int fd = -1;
  private:
   void writen(const char *msg, size_t n);

@@ -26,9 +26,10 @@ class BlockingServer {
       } else if (pid == 0) {
         // child
         listen_sock.reset();
-        std::string msg;
-        conn_sock->read_(msg);
-        conn_sock->write_(handler().handle(msg));
+        std::string buf;
+        buf.resize(4096);
+        conn_sock->readn(buf, 4096);
+        conn_sock->write_(handler().handle(buf));
         exit(0);
       }
       else {

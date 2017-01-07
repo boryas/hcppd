@@ -7,8 +7,6 @@
 
 #include <sstream>
 
-#define MAXLINE 4096
-
 namespace lib {
 namespace fd {
 
@@ -48,24 +46,27 @@ void Fd::writen(const char *msg, size_t n) {
   }
 }
 
-int Fd::read_(std::string& msg) {
-  char buffer_[MAXLINE];
+// buf must have capacity >= n
+size_t Fd::readn(std::string& buf, size_t n) {
+  size_t left = n;
   ssize_t nread;
-  ssize_t n;
-  bool keep_reading = true;
-  while (keep_reading) {
-    n = read(fd, buffer_, MAXLINE);
-    if (n < 0) {
+  char *ptr = &buf[0];
+  while (left > 0) {
+    nread = read(fd, ptr, left);
+    if (nread < 0) {
       if (errno != EINTR) {
         syslog(LOG_ERR, "Read error; %m");
         throw FdError("Failed while reading from fd " + fd);
       }
+      nread = 0;
     }
-    nread += n;
-    msg += buffer_;
-    keep_reading = false;
+    left -= nread;
+    ptr += nread;
+    // HACK until we have non-blocking mode
+    // if the other end never closes but sends less than n, we block forever
+    return n - left;
   }
-  return nread;
+  return n - left;
 }
 
 void Fd::write_(const std::string& msg) {

@@ -111,8 +111,8 @@ void Socket::write_(const std::string& msg) {
   fd_->write_(msg);
 }
 
-int Socket::read_(std::string& msg) {
-  return fd_->read_(msg);
+int Socket::readn(std::string& buf, int n) {
+  return fd_->readn(buf, n);
 }
 
 } // socket
