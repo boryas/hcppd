@@ -6,6 +6,7 @@
 #include "lib/http/request.h"
 #include "lib/http/response.h"
 #include "lib/server.h"
+#include "lib/socket.h"
 
 namespace servers {
 namespace blog {
@@ -13,7 +14,7 @@ namespace blog {
 class BlogServer : public lib::server::BlockingServer<BlogServer> {
 public:
  BlogServer(const std::string& port);
- std::string handle(const std::string& message);
+ std::string handle(std::unique_ptr<lib::sock::Socket> buf);
 private:
  lib::http::HttpResponse handleRequest(
      const lib::http::HttpRequest& request) const;

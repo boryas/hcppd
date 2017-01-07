@@ -47,10 +47,14 @@ lib::http::HttpResponse BlogServer::handleRequest(
   }
 }
 
-std::string BlogServer::handle(const std::string& msg) {
-  lib::http::HttpRequest req(msg);
+std::string BlogServer::handle(std::unique_ptr<lib::sock::Socket> conn) {
+  auto buf = std::make_unique<std::string>();
+  buf->resize(4096);
+  conn->readn(*buf, 4096);
+  lib::http::HttpRequest req(*buf);
   auto r = handleRequest(req).format();
   syslog(LOG_INFO, "Responding with: \n%s", r.c_str());
+  conn->write_(r);
   return r;
 }
 
