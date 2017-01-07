@@ -14,7 +14,7 @@ namespace blog {
 class BlogServer : public lib::server::BlockingServer<BlogServer> {
 public:
  BlogServer(const std::string& port);
- std::string handle(std::unique_ptr<lib::sock::Socket> buf);
+ std::string handle(std::unique_ptr<lib::sock::Socket> conn);
 private:
  lib::http::HttpResponse handleRequest(
      const lib::http::HttpRequest& request) const;
