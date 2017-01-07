@@ -6,6 +6,7 @@
 
 #include "lib/daemon.h"
 #include "lib/fs.h"
+#include "lib/http/parse/parser.h"
 #include "lib/options.h"
 #include "resource.h"
 
@@ -51,8 +52,9 @@ std::string BlogServer::handle(std::unique_ptr<lib::sock::Socket> conn) {
   auto buf = std::make_unique<std::string>();
   buf->resize(4096);
   conn->readn(*buf, 4096);
-  lib::http::HttpRequest req(*buf);
-  auto r = handleRequest(req).format();
+  lib::http::parse::Parser http_parser;
+  http_parser.consume(std::move(buf));
+  auto r = handleRequest(http_parser.request()).format();
   syslog(LOG_INFO, "Responding with: \n%s", r.c_str());
   conn->write_(r);
   return r;

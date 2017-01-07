@@ -108,7 +108,6 @@ public:
 class HttpHeaderLine {
 public:
   virtual ~HttpHeaderLine() {}
-  virtual std::string dumpField() = 0;
   std::string value;
   HeaderType type;
 };
@@ -230,8 +229,6 @@ public:
 
 class HttpRequest {
 public:
-  HttpRequest(const std::string& raw_request);
-  virtual ~HttpRequest() {}
   HttpRequestLine request_line;
   std::vector<HttpHeaderLine> header;
   HttpMethod method() const {
