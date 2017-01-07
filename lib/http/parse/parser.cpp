@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include <sstream>
+#include <unordered_set>
 
 namespace lib {
 namespace http {
@@ -10,19 +11,28 @@ bool Parser::hungry() const {
   return state_ != ParserState::DONE;
 }
 
+std::unordered_set<char> SPECIAL = {
+  ':',
+  ' ',
+  '\n',
+  '\t',
+  '\"',
+};
+
 void Parser::consume(std::unique_ptr<std::string> chunk) {
   auto cur = std::shared_ptr<std::string>(std::move(chunk));
   chunks_.emplace_back(cur);
   size_t token_start = 0;
   for (size_t i = 0; i < cur->size(); ++i) {
-    if (state_ == ParserState::DONE) {
+    if (!hungry()) {
       return;
     }
     char c = cur->at(i);
-    if (c == ' ' || c == '\n') {
+    if (SPECIAL.find(c) != SPECIAL.end()) {
       auto token = cur->substr(token_start, i-token_start);
       syslog(LOG_INFO, token.c_str());
       consumeToken(token);
+      //consumeToken(cur->substr(i, 1));
       token_start = i+1;
     }
   }
