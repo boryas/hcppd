@@ -25,6 +25,16 @@ enum class ParserState {
   DONE,
 };
 
+/*
+ * Parser Design (not yet implemented)
+ * The parser is actually a hierarchy of parsers. Each parser has an
+ * ordered list of sub-parsers and it gives data to each to consume until
+ * the sub-parser is satisfied. A Parser's consume method will return how
+ * much data it consumed so that it's parent can give the rest of the data
+ * to the next sub-parser.
+ * The data is passed around in "string slices" so we never have to copy to
+ * slice/index into strings when chopping them up and passing them around
+ */
 class Parser {
  public:
   bool hungry() const;
