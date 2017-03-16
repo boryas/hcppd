@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
@@ -16,15 +17,6 @@ class ParserError : public std::runtime_error {
     : std::runtime_error("http request ParserError: " + reason) {}
 };
 
-enum class ParserState {
-  REQUEST_LINE_METHOD,
-  REQUEST_LINE_URI,
-  REQUEST_LINE_PROT,
-  HEADER,
-  BODY,
-  DONE,
-};
-
 /*
  * Parser Design (not yet implemented)
  * The parser is actually a hierarchy of parsers. Each parser has an
@@ -32,20 +24,68 @@ enum class ParserState {
  * the sub-parser is satisfied. A Parser's consume method will return how
  * much data it consumed so that it's parent can give the rest of the data
  * to the next sub-parser.
- * The data is passed around in "string slices" so we never have to copy to
+ * The data will be passed around in "string slices" so we never have to copy to
  * slice/index into strings when chopping them up and passing them around
  */
+
+// OPEN Qs:
+// 1: How to pass output request object around?
+// option: take a ref as an arg of consume
+// option: take a ref as an arg of ctor (feasible?)
+// option: get ownership as an arg of ctor, have method to relinquish
+//
+//
+// TODO: make a string view class to avoid all the gratuitous copying
+
 class Parser {
  public:
+  virtual ~Parser() {}
+  virtual size_t consume(std::shared_ptr<std::string> chunk) = 0;
+  virtual bool hungry() const = 0;
+};
+
+class HttpParser {
+ public:
+  HttpParser();
   bool hungry() const;
-  void consume(std::unique_ptr<std::string> chunk);
+  size_t consume(std::unique_ptr<std::string> chunk);
   HttpRequest request() const;
  private:
-  void consumeToken(const std::string& token);
-  ParserState state_ = ParserState::REQUEST_LINE_METHOD;
-  HttpRequest req_;
+  std::shared_ptr<HttpRequest> request_;
+  std::deque<std::unique_ptr<Parser>> parsers_;
   std::vector<std::shared_ptr<std::string>> chunks_;
 };
+
+class RequestLineMethodParser : public Parser {
+ public:
+  RequestLineMethodParser(std::shared_ptr<HttpRequest> request);
+  bool hungry() const override;
+  size_t consume(std::shared_ptr<std::string> chunk) override;
+ private:
+  std::shared_ptr<HttpRequest> request_;
+  bool hungry_;
+};
+
+class RequestLineUriParser : public Parser {
+ public:
+  RequestLineUriParser(std::shared_ptr<HttpRequest> request);
+  bool hungry() const override;
+  size_t consume(std::shared_ptr<std::string> chunk) override;
+ private:
+  std::shared_ptr<HttpRequest> request_;
+  bool hungry_;
+};
+
+class RequestLineProtocolVersionParser : public Parser {
+ public:
+  RequestLineProtocolVersionParser(std::shared_ptr<HttpRequest> request);
+  bool hungry() const override;
+  size_t consume(std::shared_ptr<std::string> chunk) override;
+ private:
+  std::shared_ptr<HttpRequest> request_;
+  bool hungry_;
+};
+
 
 } // namespace parse
 } // namespace http

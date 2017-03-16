@@ -49,11 +49,17 @@ lib::http::HttpResponse BlogServer::handleRequest(
 }
 
 std::string BlogServer::handle(std::unique_ptr<lib::sock::Socket> conn) {
+  syslog(LOG_INFO, "handle!");
   auto buf = std::make_unique<std::string>();
   buf->resize(4096);
   conn->readn(*buf, 4096);
-  lib::http::parse::Parser http_parser;
-  http_parser.consume(std::move(buf));
+  syslog(LOG_INFO, "handle buf %s", buf->c_str());
+  lib::http::parse::HttpParser http_parser;
+  while (http_parser.hungry()) {
+    syslog(LOG_INFO, "hungry parser!");
+    http_parser.consume(std::move(buf));
+  }
+  syslog(LOG_INFO, "full parser!");
   auto r = handleRequest(http_parser.request()).format();
   syslog(LOG_INFO, "Responding with: \n%s", r.c_str());
   conn->write_(r);

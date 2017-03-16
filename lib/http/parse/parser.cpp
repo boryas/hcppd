@@ -7,69 +7,115 @@ namespace lib {
 namespace http {
 namespace parse {
 
-bool Parser::hungry() const {
-  return state_ != ParserState::DONE;
+HttpParser::HttpParser() {
+  request_ = std::make_shared<HttpRequest>();
+  auto mp = std::make_unique<RequestLineMethodParser>(request_);
+  auto up = std::make_unique<RequestLineUriParser>(request_);
+  auto pvp = std::make_unique<RequestLineProtocolVersionParser>(request_);
+  parsers_.push_back(std::move(mp));
+  parsers_.push_back(std::move(up));
+  parsers_.push_back(std::move(pvp));
 }
 
-std::unordered_set<char> SPECIAL = {
-  ':',
-  ' ',
-  '\n',
-  '\t',
-  '\"',
-};
+bool HttpParser::hungry() const {
+  return !parsers_.empty() && parsers_.back()->hungry();
+}
 
-void Parser::consume(std::unique_ptr<std::string> chunk) {
-  auto cur = std::shared_ptr<std::string>(std::move(chunk));
-  chunks_.emplace_back(cur);
+HttpRequest HttpParser::request() const {
+  return *request_;
+}
+
+size_t HttpParser::consume(std::unique_ptr<std::string> chunk) {
+  syslog(LOG_INFO, "HttpParser consume %s", chunk->c_str());
+  auto ch = std::make_shared<std::string>(*chunk.release());
+  chunks_.emplace_back(ch);
+  size_t i = 0;
+  while (hungry()) {
+    while (parsers_.front()->hungry()) {
+      auto s = std::make_shared<std::string>(ch->substr(i));
+      i += parsers_.front()->consume(s);
+    }
+    parsers_.pop_front();
+  }
+  return i;
+}
+
+RequestLineMethodParser::RequestLineMethodParser(
+    std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
+
+size_t RequestLineMethodParser::consume(std::shared_ptr<std::string> chunk) {
+  syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk->c_str());
   size_t token_start = 0;
-  for (size_t i = 0; i < cur->size(); ++i) {
-    if (!hungry()) {
-      return;
-    }
-    char c = cur->at(i);
-    if (SPECIAL.find(c) != SPECIAL.end()) {
-      auto token = cur->substr(token_start, i-token_start);
+  for (size_t i = 0; i < chunk->size(); ++i) {
+    char c = chunk->at(i);
+    if (c == ' ') {
+      auto token = chunk->substr(token_start, i-token_start);
       syslog(LOG_INFO, token.c_str());
-      consumeToken(token);
-      //consumeToken(cur->substr(i, 1));
-      token_start = i+1;
+      if (token == "HEAD") {
+        request_->request_line.method = HttpMethod::HEAD;
+      } else if (token == "GET") {
+        request_->request_line.method = HttpMethod::GET;
+      } else if (token == "POST") {
+        request_->request_line.method = HttpMethod::POST;
+      } else {
+        throw ParserError("Invalid method " + token);
+      }
+      hungry_ = false;
+      return i+1;
     }
   }
+  return chunk->size();
 }
 
-void Parser::consumeToken(const std::string& token) {
-  switch (state_) {
-    case ParserState::REQUEST_LINE_METHOD:
-      if (token == "HEAD") {
-        req_.request_line.method = HttpMethod::HEAD;
-      }
-      if (token == "GET") {
-        req_.request_line.method = HttpMethod::GET;
-      }
-      if (token == "POST") {
-        req_.request_line.method = HttpMethod::POST;
-      }
-      state_ = ParserState::REQUEST_LINE_URI;
-      break;
-    case ParserState::REQUEST_LINE_URI:
-      req_.request_line.uri = token;
-      state_ = ParserState::REQUEST_LINE_PROT;
-      break;
-    case ParserState::REQUEST_LINE_PROT:
-      req_.request_line.protocol_version = token;
-      state_ = ParserState::DONE;
-      break;
-    default:
-      throw ParserError("Bad ParserState");
-  }
+bool RequestLineMethodParser::hungry() const {
+  return hungry_;
 }
 
-HttpRequest Parser::request() const {
-  if (hungry()) {
-    throw ParserError("Request not fully parsed yet");
+RequestLineUriParser::RequestLineUriParser(
+    std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
+
+size_t RequestLineUriParser::consume(std::shared_ptr<std::string> chunk) {
+  syslog(LOG_INFO, "RequestLineUriParser consume %s", chunk->c_str());
+  size_t token_start = 0;
+  for (size_t i = 0; i < chunk->size(); ++i) {
+    char c = chunk->at(i);
+    if (c == ' ') {
+      auto token = chunk->substr(token_start, i-token_start);
+      syslog(LOG_INFO, token.c_str());
+      request_->request_line.uri = token;
+      hungry_ = false;
+      return i+1;
+    }
   }
-  return req_;
+  return chunk->size();
+}
+
+bool RequestLineUriParser::hungry() const {
+  return hungry_;
+}
+
+RequestLineProtocolVersionParser::RequestLineProtocolVersionParser(
+    std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
+
+size_t RequestLineProtocolVersionParser::consume(
+    std::shared_ptr<std::string> chunk) {
+  syslog(LOG_INFO, "RequestLineProtocolVersionParser consume %s", chunk->c_str());
+  size_t token_start = 0;
+  for (size_t i = 0; i < chunk->size(); ++i) {
+    char c = chunk->at(i);
+    if (c == '\n') {
+      auto token = chunk->substr(token_start, i-token_start);
+      syslog(LOG_INFO, token.c_str());
+      request_->request_line.protocol_version = token;
+      hungry_ = false;
+      return i+1;
+    }
+  }
+  return chunk->size();
+}
+
+bool RequestLineProtocolVersionParser::hungry() const {
+  return hungry_;
 }
 
 } // namespace parse
