@@ -1,9 +1,13 @@
 #pragma once
 
-#include <pair>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
+
+namespace lib {
+namespace unit_test {
 
 class AssertionError : public std::runtime_error {
  public:
@@ -24,16 +28,19 @@ class Test {
  public:
   virtual ~Test();
   virtual void run() const = 0;
-  const std::string name;
+  std::string name;
 };
 
 class TestSuite {
  public:
-  void add();
+  void add(std::unique_ptr<Test> test);
   void displayResults() const;
-  void run() const;
+  void run();
  private:
-  std::vector<Test> tests_;
-  std::vector<Test> successes_;
-  std::vector<std::pair<Test, std::string>> failures_;
+  std::vector<std::unique_ptr<Test>> tests_;
+  std::vector<std::unique_ptr<Test>> successes_;
+  std::vector<std::pair<std::unique_ptr<Test>, std::string>> failures_;
 };
+
+} // namespace unit_test
+} // namespace lib

@@ -2,26 +2,35 @@
 
 #include <iostream>
 
-void TestSuite::run() const {
-  for (const auto& t : tests_) {
+namespace lib {
+namespace unit_test {
+
+Test::~Test() {}
+
+void TestSuite::run() {
+  for (auto& t : tests_) {
     try {
-      t.run();
-      successes_.push_back(t);
+      t->run();
     } catch (const AssertionError& e) {
-      failures_.push_back({t, e.reason});
+      failures_.push_back({std::move(t), e.reason});
+      continue;
     }
+    successes_.push_back(std::move(t));
   }
 }
 
-void TestSuite::add(const Test& t) {
-  tests_.push_back(t);
+void TestSuite::add(std::unique_ptr<Test> t) {
+  tests_.push_back(std::move(t));
 }
 
 void TestSuite::displayResults() const {
   for (const auto& t : successes_) {
-    std::cout << t.name << "\t.\n";
+    std::cout << t->name << "\t.\n";
   }
   for (const auto& t : failures_) {
-    std::cout << t.first.name << "\tX\t" << t.second << "\n";
+    std::cout << t.first->name << "\tX\t" << t.second << "\n";
   }
 }
+
+} // namespace unit_test
+} // namespace lib
