@@ -54,8 +54,7 @@ int main(int argc, char **argv) {
   auto basic_test = std::make_unique<BasicParserTest>();
   auto two_chunk_test = std::make_unique<TwoChunkParserTest>();
   test_suite.add(std::move(basic_test));
-  //two chunk test blows up and runs forever!!!
-  //test_suite.add(std::move(two_chunk_test));
+  test_suite.add(std::move(two_chunk_test));
   test_suite.run();
   test_suite.displayResults();
 }

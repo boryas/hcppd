@@ -30,8 +30,8 @@ size_t HttpParser::consume(std::unique_ptr<std::string> chunk) {
   auto ch = std::make_shared<std::string>(*chunk.release());
   chunks_.emplace_back(ch);
   size_t i = 0;
-  while (hungry()) {
-    while (parsers_.front()->hungry()) {
+  while (i < ch->size() && hungry()) {
+    while (i < ch->size() && parsers_.front()->hungry()) {
       auto s = std::make_shared<std::string>(ch->substr(i));
       i += parsers_.front()->consume(s);
     }
