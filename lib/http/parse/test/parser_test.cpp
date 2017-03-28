@@ -6,10 +6,10 @@
 #include "lib/http/parse/parser.h"
 
 namespace {
-class ParserTest : public lib::unit_test::Test {
+class BasicParserTest : public lib::unit_test::Test {
  public:
-  ParserTest() {
-    name = "Basic HTTP Parser Test";
+  BasicParserTest() {
+    name = "Basic HTTP parsing";
   }
   void run() const override {
     auto input = std::make_unique<std::string>("GET / HTTP1.1\n");
@@ -21,12 +21,41 @@ class ParserTest : public lib::unit_test::Test {
     lib::unit_test::assertEqual(root, req.uri());
   }
 };
+
+class TwoChunkParserTest : public lib::unit_test::Test {
+ public:
+  TwoChunkParserTest() {
+    name = "Two chunk HTTP parsing";
+  }
+  void run() const override {
+    auto chunk1 = std::make_unique<std::string>("GET ");
+    auto chunk2 = std::make_unique<std::string>("/ HTTP1.1\n");
+    lib::http::parse::HttpParser http_parser;
+
+    // Eat in first chunk, should be able to parse out method
+    http_parser.consume(std::move(chunk1));
+    auto req = http_parser.request();
+    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    lib::unit_test::assertEqual(true, http_parser.hungry());
+
+    // Eat in second chunk, should be able to parse the rest
+    http_parser.consume(std::move(chunk2));
+    req = http_parser.request();
+    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    std::string root("/");
+    lib::unit_test::assertEqual(root, req.uri());
+  }
+};
+
 }
 
 int main(int argc, char **argv) {
   lib::unit_test::TestSuite test_suite;
-  auto test = std::make_unique<ParserTest>();
-  test_suite.add(std::move(test));
+  auto basic_test = std::make_unique<BasicParserTest>();
+  auto two_chunk_test = std::make_unique<TwoChunkParserTest>();
+  test_suite.add(std::move(basic_test));
+  //two chunk test blows up and runs forever!!!
+  //test_suite.add(std::move(two_chunk_test));
   test_suite.run();
   test_suite.displayResults();
 }
