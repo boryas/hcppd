@@ -31,11 +31,11 @@ size_t HttpParser::consume(std::unique_ptr<std::string> chunk) {
   chunks_.emplace_back(ch);
   size_t i = 0;
   while (i < ch->size() && hungry()) {
-    while (i < ch->size() && parsers_.front()->hungry()) {
-      auto s = std::make_shared<std::string>(ch->substr(i));
-      i += parsers_.front()->consume(s);
+    auto s = std::make_shared<std::string>(ch->substr(i));
+    i += parsers_.front()->consume(s);
+    if (!parsers_.front()->hungry()) {
+      parsers_.pop_front();
     }
-    parsers_.pop_front();
   }
   return i;
 }
@@ -45,11 +45,15 @@ RequestLineMethodParser::RequestLineMethodParser(
 
 size_t RequestLineMethodParser::consume(std::shared_ptr<std::string> chunk) {
   syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk->c_str());
-  size_t token_start = 0;
   for (size_t i = 0; i < chunk->size(); ++i) {
     char c = chunk->at(i);
     if (c == ' ') {
-      auto token = chunk->substr(token_start, i-token_start);
+      std::string token;
+      if (!token_) {
+        token = chunk->substr(0, i);
+      } else {
+        token = *token_ + chunk->substr(0, i);
+      }
       syslog(LOG_INFO, token.c_str());
       if (token == "HEAD") {
         request_->request_line.method = HttpMethod::HEAD;
@@ -63,6 +67,11 @@ size_t RequestLineMethodParser::consume(std::shared_ptr<std::string> chunk) {
       hungry_ = false;
       return i+1;
     }
+  }
+  if (!token_) {
+    token_ = chunk;
+  } else {
+    *token_ += *chunk;
   }
   return chunk->size();
 }

@@ -64,6 +64,7 @@ class RequestLineMethodParser : public Parser {
  private:
   std::shared_ptr<HttpRequest> request_;
   bool hungry_;
+  std::shared_ptr<std::string> token_;
 };
 
 class RequestLineUriParser : public Parser {
