@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdexcept>
 
-namespace lib {
+namespace ssfs {
 namespace fd {
 
 // Class that manages an open file descriptor.
@@ -30,4 +30,4 @@ class FdError : public std::runtime_error {
 };
 
 } // namespace fd
-} // namespace lib
+} // namespace ssfs

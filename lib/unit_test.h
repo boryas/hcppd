@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-namespace lib {
+namespace ssfs {
 namespace unit_test {
 
 class AssertionError : public std::runtime_error {
@@ -43,4 +43,4 @@ class TestSuite {
 };
 
 } // namespace unit_test
-} // namespace lib
+} // namespace ssfs

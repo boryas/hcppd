@@ -7,7 +7,7 @@
 
 #include "lib/http/request.h"
 
-namespace lib {
+namespace ssfs {
 namespace http {
 namespace parse {
 
@@ -90,4 +90,4 @@ class RequestLineProtocolVersionParser : public Parser {
 
 } // namespace parse
 } // namespace http
-} // namespace lib
+} // namespace ssfs

@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace lib {
+namespace ssfs {
 namespace http {
 
 class HttpStatusLine {
@@ -45,4 +45,4 @@ class HttpResponse {
 };
 
 } // namespace http
-} // namespace lib
+} // namespace ssfs

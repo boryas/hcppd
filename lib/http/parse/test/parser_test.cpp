@@ -6,23 +6,23 @@
 #include "lib/http/parse/parser.h"
 
 namespace {
-class BasicParserTest : public lib::unit_test::Test {
+class BasicParserTest : public ssfs::unit_test::Test {
  public:
   BasicParserTest() {
     name = "Basic HTTP parsing";
   }
   void run() const override {
     auto input = std::make_unique<std::string>("GET / HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
     http_parser.consume(std::move(input));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(root, req.uri());
   }
 };
 
-class TwoChunkParserTest : public lib::unit_test::Test {
+class TwoChunkParserTest : public ssfs::unit_test::Test {
  public:
   TwoChunkParserTest() {
     name = "Two chunk HTTP parsing";
@@ -30,25 +30,25 @@ class TwoChunkParserTest : public lib::unit_test::Test {
   void run() const override {
     auto chunk1 = std::make_unique<std::string>("GET ");
     auto chunk2 = std::make_unique<std::string>("/ HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
 
     // Eat in first chunk, should be able to parse out method
     http_parser.consume(std::move(chunk1));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in second chunk, should be able to parse the rest
     http_parser.consume(std::move(chunk2));
     req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
-    lib::unit_test::assertEqual(false, http_parser.hungry());
+    ssfs::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(false, http_parser.hungry());
   }
 };
 
-class ChunkOnDelimiterParserTest : public lib::unit_test::Test {
+class ChunkOnDelimiterParserTest : public ssfs::unit_test::Test {
  public:
   ChunkOnDelimiterParserTest() {
     name = "All but the delimiter in a chunk HTTP parsing";
@@ -56,23 +56,23 @@ class ChunkOnDelimiterParserTest : public lib::unit_test::Test {
   void run() const override {
     auto chunk1 = std::make_unique<std::string>("GET");
     auto chunk2 = std::make_unique<std::string>(" / HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
 
     // Eat in first chunk, nothing yet
     http_parser.consume(std::move(chunk1));
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in second chunk, should be able to parse the rest
     http_parser.consume(std::move(chunk2));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
-    lib::unit_test::assertEqual(false, http_parser.hungry());
+    ssfs::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(false, http_parser.hungry());
   }
 };
 
-class ChunkOnlyDelimiterParserTest : public lib::unit_test::Test {
+class ChunkOnlyDelimiterParserTest : public ssfs::unit_test::Test {
  public:
   ChunkOnlyDelimiterParserTest() {
     name = "Delimiter in its own chunk HTTP parsing";
@@ -81,29 +81,29 @@ class ChunkOnlyDelimiterParserTest : public lib::unit_test::Test {
     auto chunk1 = std::make_unique<std::string>("GET");
     auto chunk2 = std::make_unique<std::string>(" ");
     auto chunk3 = std::make_unique<std::string>("/ HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
 
     // Eat in first chunk, nothing yet
     http_parser.consume(std::move(chunk1));
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in second chunk, should be able to parse out method
     http_parser.consume(std::move(chunk2));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in third chunk, should be able to parse the rest
     http_parser.consume(std::move(chunk3));
     req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
-    lib::unit_test::assertEqual(false, http_parser.hungry());
+    ssfs::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(false, http_parser.hungry());
   }
 };
 
-class TwoChunkTokenTest : public lib::unit_test::Test {
+class TwoChunkTokenTest : public ssfs::unit_test::Test {
  public:
   TwoChunkTokenTest () {
     name = "Two chunks for one token HTTP parsing";
@@ -111,24 +111,24 @@ class TwoChunkTokenTest : public lib::unit_test::Test {
   void run() const override {
     auto chunk1 = std::make_unique<std::string>("GE");
     auto chunk2 = std::make_unique<std::string>("T / HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
 
     // Eat in first chunk, nothing yet
     http_parser.consume(std::move(chunk1));
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in second chunk, should be able to parse the rest
     http_parser.consume(std::move(chunk2));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
-    lib::unit_test::assertEqual(false, http_parser.hungry());
+    ssfs::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(false, http_parser.hungry());
 
   }
 };
 
-class ThreeChunkTokenTest : public lib::unit_test::Test {
+class ThreeChunkTokenTest : public ssfs::unit_test::Test {
  public:
   ThreeChunkTokenTest() {
     name = "Three chunks for one token HTTP parsing";
@@ -137,30 +137,30 @@ class ThreeChunkTokenTest : public lib::unit_test::Test {
     auto chunk1 = std::make_unique<std::string>("G");
     auto chunk2 = std::make_unique<std::string>("E");
     auto chunk3 = std::make_unique<std::string>("T / HTTP1.1\n");
-    lib::http::parse::HttpParser http_parser;
+    ssfs::http::parse::HttpParser http_parser;
 
     // Eat in first chunk, nothing yet
     http_parser.consume(std::move(chunk1));
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in second chunk, still nothing
     http_parser.consume(std::move(chunk2));
-    lib::unit_test::assertEqual(true, http_parser.hungry());
+    ssfs::unit_test::assertEqual(true, http_parser.hungry());
 
     // Eat in third chunk, should be able to parse the rest
     http_parser.consume(std::move(chunk3));
     auto req = http_parser.request();
-    lib::unit_test::assertEqual(lib::http::HttpMethod::GET, req.method());
+    ssfs::unit_test::assertEqual(ssfs::http::HttpMethod::GET, req.method());
     std::string root("/");
-    lib::unit_test::assertEqual(root, req.uri());
-    lib::unit_test::assertEqual(false, http_parser.hungry());
+    ssfs::unit_test::assertEqual(root, req.uri());
+    ssfs::unit_test::assertEqual(false, http_parser.hungry());
 
   }
 };
 }
 
 int main(int argc, char **argv) {
-  lib::unit_test::TestSuite test_suite;
+  ssfs::unit_test::TestSuite test_suite;
   auto basic_test = std::make_unique<BasicParserTest>();
   auto two_chunk_test = std::make_unique<TwoChunkParserTest>();
   auto chunk_on_delimiter_test = std::make_unique<ChunkOnDelimiterParserTest>();

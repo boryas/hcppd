@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-namespace lib {
+namespace ssfs {
 namespace fs {
 
 Stat::Stat(const std::string& path) {
@@ -89,4 +89,4 @@ std::string readFile(const std::string& path) {
 }
 
 } // namespace fs
-} // namespace lib
+} // namespace ssfs

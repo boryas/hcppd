@@ -16,14 +16,14 @@ namespace blog {
 auto constexpr TEMPLATE_FILE = "/home/bb/blog/templates/post.html";
 
 BlogServer::BlogServer(const std::string& port)
- : lib::server::BlockingServer<BlogServer>(port) {
+ : ssfs::server::BlockingServer<BlogServer>(port) {
    auto t = std::make_unique<std::string>(
-       lib::fs::readFile(TEMPLATE_FILE));
-   template_.reset(new lib::html::HtmlTemplate(std::move(t)));
+       ssfs::fs::readFile(TEMPLATE_FILE));
+   template_.reset(new ssfs::html::HtmlTemplate(std::move(t)));
 }
 
-lib::http::HttpResponse BlogServer::handleRequest(
-    const lib::http::HttpRequest& request) const {
+ssfs::http::HttpResponse BlogServer::handleRequest(
+    const ssfs::http::HttpRequest& request) const {
   syslog(LOG_INFO, "Responding to request for: %s", request.uri().c_str());
   try {
     auto resource_type = resolveResourceType(request.uri());
@@ -34,27 +34,27 @@ lib::http::HttpResponse BlogServer::handleRequest(
         {"post", post.get()}
       };
       auto html = template_->populate(contents);
-      return lib::http::HttpResponse(html, "text/html");
+      return ssfs::http::HttpResponse(html, "text/html");
     } else {
       Css css(request.uri());
-      return lib::http::HttpResponse(css.get(), "text/css");
+      return ssfs::http::HttpResponse(css.get(), "text/css");
     }
-  } catch (lib::fs::PathNotFoundError& e) {
-    lib::http::HttpResponse response(404, "Not Found!", "404 LOL");
+  } catch (ssfs::fs::PathNotFoundError& e) {
+    ssfs::http::HttpResponse response(404, "Not Found!", "404 LOL");
     return response;
   } catch (std::exception& e) {
-    lib::http::HttpResponse response(500, "Server Error!", "500 LOL");
+    ssfs::http::HttpResponse response(500, "Server Error!", "500 LOL");
     return response;
   }
 }
 
-std::string BlogServer::handle(std::unique_ptr<lib::sock::Socket> conn) {
+std::string BlogServer::handle(std::unique_ptr<ssfs::sock::Socket> conn) {
   syslog(LOG_INFO, "handle!");
   auto buf = std::make_unique<std::string>();
   buf->resize(4096);
   conn->readn(*buf, 4096);
   syslog(LOG_INFO, "handle buf %s", buf->c_str());
-  lib::http::parse::HttpParser http_parser;
+  ssfs::http::parse::HttpParser http_parser;
   while (http_parser.hungry()) {
     syslog(LOG_INFO, "hungry parser!");
     http_parser.consume(std::move(buf));
@@ -71,9 +71,9 @@ std::string BlogServer::handle(std::unique_ptr<lib::sock::Socket> conn) {
 
 
 int main(int argc, char **argv) {
-  lib::daemon::daemonize();
-  auto options = lib::options::get_options(argc, argv);
-  lib::options::log_options(options);
+  ssfs::daemon::daemonize();
+  auto options = ssfs::options::get_options(argc, argv);
+  ssfs::options::log_options(options);
   servers::blog::BlogServer server(options["port"]);
   server.serve();
 }

@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-namespace lib {
+namespace ssfs {
 namespace fd {
 
 Fd::Fd(const int fd) {
@@ -74,4 +74,4 @@ void Fd::write_(const std::string& msg) {
 }
 
 } // namespace fd
-} // namespace lib
+} // namespace ssfs

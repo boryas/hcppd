@@ -11,14 +11,14 @@
 namespace servers {
 namespace blog {
 
-class BlogServer : public lib::server::BlockingServer<BlogServer> {
+class BlogServer : public ssfs::server::BlockingServer<BlogServer> {
 public:
  BlogServer(const std::string& port);
- std::string handle(std::unique_ptr<lib::sock::Socket> conn);
+ std::string handle(std::unique_ptr<ssfs::sock::Socket> conn);
 private:
- lib::http::HttpResponse handleRequest(
-     const lib::http::HttpRequest& request) const;
- std::unique_ptr<lib::html::HtmlTemplate> template_;
+ ssfs::http::HttpResponse handleRequest(
+     const ssfs::http::HttpRequest& request) const;
+ std::unique_ptr<ssfs::html::HtmlTemplate> template_;
 };
 
 } // namespace blog

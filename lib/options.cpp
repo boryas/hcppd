@@ -2,7 +2,7 @@
 
 #include <syslog.h>
 
-namespace lib {
+namespace ssfs {
 namespace options {
 
 static struct option long_options[] =
@@ -35,4 +35,4 @@ void log_options(std::unordered_map<std::string, std::string> options) {
 }
 
 } // namespace options
-} // namespace lib
+} // namespace ssfs

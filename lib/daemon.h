@@ -1,9 +1,9 @@
 #pragma once
 
-namespace lib {
+namespace ssfs {
 namespace daemon {
 
 void daemonize();
 
 } // namespace daemon
-} // namespace lib
+} // namespace ssfs

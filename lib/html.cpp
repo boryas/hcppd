@@ -1,6 +1,6 @@
 #include "html.h"
 
-namespace lib {
+namespace ssfs {
 namespace html {
 
 std::string HtmlTemplate::populate(
@@ -17,4 +17,4 @@ std::string HtmlTemplate::populate(
 }
 
 } // namespace html
-} // namespace lib
+} // namespace ssfs

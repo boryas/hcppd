@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-namespace lib {
+namespace ssfs {
 namespace http {
 
 enum class HttpMethod {
@@ -237,4 +237,4 @@ public:
 };
 
 } // namespace http
-} // namespace lib
+} // namespace ssfs

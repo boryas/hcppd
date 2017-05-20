@@ -1,6 +1,6 @@
 #include "response.h"
 
-namespace lib {
+namespace ssfs {
 namespace http {
   
 auto constexpr PROTOCOL_VERSION = "HTTP/1.1";
@@ -38,4 +38,4 @@ std::string HttpResponse::format() const {
 
 
 } // namespace http
-} // namespace lib
+} // namespace ssfs

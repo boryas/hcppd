@@ -13,7 +13,7 @@
 
 #include "fd.h"
 
-namespace lib {
+namespace ssfs {
 namespace sock {
 
 class Sockaddr {
@@ -45,7 +45,7 @@ class SocketError : public std::runtime_error {
 class Socket {
  public:
   Socket();
-  Socket(std::unique_ptr<lib::fd::Fd> fd,
+  Socket(std::unique_ptr<ssfs::fd::Fd> fd,
          const Sockaddr& local,
          const Sockaddr& remote);
   void bind_(const std::string& port);
@@ -54,11 +54,11 @@ class Socket {
   void write_(const std::string& msg);
   int readn(std::string& buf, int n);
  private:
-  std::unique_ptr<lib::fd::Fd> fd_;
+  std::unique_ptr<ssfs::fd::Fd> fd_;
   SocketState state_ = SocketState::UNINITIALIZED;
   Sockaddr local_;
   Sockaddr remote_;
 };
 
 } // namespace sock
-} // namespace lib
+} // namespace ssfs

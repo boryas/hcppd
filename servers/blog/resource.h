@@ -26,11 +26,11 @@ class Resource {
  public:
   Resource (const std::string& request_uri) {
     auto path = t().resolveUri(request_uri);
-    lib::fs::Stat s(path);
+    ssfs::fs::Stat s(path);
     if (!s.isRegularFile()) {
       throw ResourceError("Resource is not a regular file");
     }
-    f_ = std::make_unique<lib::fs::File>(path);
+    f_ = std::make_unique<ssfs::fs::File>(path);
   }
   virtual ~Resource() {}
   std::string get() {
@@ -38,7 +38,7 @@ class Resource {
   }
  private:
   T& t() { return *static_cast<T*>(this); }
-  std::unique_ptr<lib::fs::File> f_;
+  std::unique_ptr<ssfs::fs::File> f_;
 };
 
 class BlogPost : public Resource<BlogPost> {

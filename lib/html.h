@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace lib {
+namespace ssfs {
 namespace html {
 
 class HtmlTemplate {
@@ -18,4 +18,4 @@ class HtmlTemplate {
 };
 
 } // namespace html
-} // namespace lib
+} // namespace ssfs

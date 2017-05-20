@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-namespace lib {
+namespace ssfs {
 namespace daemon {
 
 void sigchldHandler(int sig) {
@@ -26,4 +26,4 @@ void daemonize() {
 }
 
 } // namespace daemon
-} // namespace lib
+} // namespace ssfs

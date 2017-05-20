@@ -4,14 +4,14 @@
 
 #include <syslog.h>
 
-namespace lib {
+namespace ssfs {
 namespace server {
 
 template <class Handler>
 class BlockingServer {
  public:
   BlockingServer(const std::string& port) {
-    listen_sock = std::make_unique<lib::sock::Socket>();
+    listen_sock = std::make_unique<ssfs::sock::Socket>();
     listen_sock->bind_(port);
     listen_sock->listen_();
   }
@@ -35,10 +35,10 @@ class BlockingServer {
       }
     }
   }
-  std::unique_ptr<lib::sock::Socket> listen_sock;
+  std::unique_ptr<ssfs::sock::Socket> listen_sock;
  private:
   Handler& handler() { return *static_cast<Handler*>(this); }
 };
 
 } // namespace server
-} // namespace lib
+} // namespace ssfs

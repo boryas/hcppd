@@ -3,7 +3,7 @@
 #include <sstream>
 #include <unordered_set>
 
-namespace lib {
+namespace ssfs {
 namespace http {
 namespace parse {
 
@@ -129,4 +129,4 @@ bool RequestLineProtocolVersionParser::hungry() const {
 
 } // namespace parse
 } // namespace http
-} // namespace lib
+} // namespace ssfs

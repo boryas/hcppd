@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace lib {
+namespace ssfs {
 namespace unit_test {
 
 Test::~Test() {}
@@ -33,4 +33,4 @@ void TestSuite::displayResults() const {
 }
 
 } // namespace unit_test
-} // namespace lib
+} // namespace ssfs

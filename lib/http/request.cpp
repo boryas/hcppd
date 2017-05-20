@@ -4,8 +4,8 @@
 
 #include <sstream>
 
-namespace lib {
+namespace ssfs {
 namespace http {
 
 } // namespace http
-} // namespace lib
+} // namespace ssfs

@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace lib {
+namespace ssfs {
 namespace fs {
 
 class FsError : public std::runtime_error {
@@ -60,4 +60,4 @@ class File {
 std::string readFile(const std::string& path);
 
 } // namespace fs
-} // namespace lib
+} // namespace ssfs
