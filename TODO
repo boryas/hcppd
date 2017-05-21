@@ -1,4 +1,0 @@
-configurable resources dirs
-templates for lists
-event based server
-cleanup sockaddr (eg scope exit type thing for addrinfos)
