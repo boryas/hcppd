@@ -7,7 +7,7 @@
 #define LISTENQ 10
 
 namespace ssfs {
-namespace sock {
+namespace net {
 
 Sockaddr::Sockaddr(const std::string& port, sa_family_t family) {
   init(port, family);
@@ -57,7 +57,7 @@ Socket::Socket() {
   if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) == -1) {
     throw SocketError("Failed to create socket");
   }
-  fd_ = std::make_unique<ssfs::fd::Fd>(fd);
+  fd_ = std::make_unique<ssfs::fs::Fd>(fd);
   int y = 1;
   if ((setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y))) == -1) {
     throw SocketError("Failed to make socket address reusuable");
@@ -65,7 +65,7 @@ Socket::Socket() {
   state_ = SocketState::INITIALIZED;
 }
 
-Socket::Socket(std::unique_ptr<ssfs::fd::Fd> fd,
+Socket::Socket(std::unique_ptr<ssfs::fs::Fd> fd,
                const Sockaddr& local,
                const Sockaddr& remote)
     : fd_(std::move(fd)), local_(local), remote_(remote) {
@@ -104,7 +104,7 @@ std::unique_ptr<Socket> Socket::accept_() {
     throw SocketError("Failed to accept on socket" + fd_->fd);
   }
   return std::make_unique<Socket>(
-      std::make_unique<ssfs::fd::Fd>(connfd), remote_, local_);
+      std::make_unique<ssfs::fs::Fd>(connfd), remote_, local_);
 }
 
 void Socket::write_(const std::string& msg) {
@@ -115,5 +115,5 @@ int Socket::readn(std::string& buf, int n) {
   return fd_->readn(buf, n);
 }
 
-} // socket
-} // lib
+} // namespace net
+} // namespace ssfs

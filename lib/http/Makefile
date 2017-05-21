@@ -1,7 +1,7 @@
 CC = g++
 CC_VERSION = -std=c++1y
 CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
-PROJECT_ROOT_DIR = /home/bb/src/ssfs/
+PROJECT_ROOT_DIR = /home/bb/src/ssfs
 CWD = $(shell pwd)
 
 all: response.o request.o
@@ -14,3 +14,4 @@ request.o: request.cpp request.h
 
 clean:
 	rm *.o 2> /dev/null || true
+	$(MAKE) -C parse clean

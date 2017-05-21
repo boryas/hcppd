@@ -1,6 +1,6 @@
 #pragma once
 
-#include "socket.h"
+#include "lib/net/socket.h"
 
 #include <syslog.h>
 
@@ -11,7 +11,7 @@ template <class Handler>
 class BlockingServer {
  public:
   BlockingServer(const std::string& port) {
-    listen_sock = std::make_unique<ssfs::sock::Socket>();
+    listen_sock = std::make_unique<ssfs::net::Socket>();
     listen_sock->bind_(port);
     listen_sock->listen_();
   }
@@ -35,7 +35,7 @@ class BlockingServer {
       }
     }
   }
-  std::unique_ptr<ssfs::sock::Socket> listen_sock;
+  std::unique_ptr<ssfs::net::Socket> listen_sock;
  private:
   Handler& handler() { return *static_cast<Handler*>(this); }
 };

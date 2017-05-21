@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 namespace ssfs {
-namespace daemon {
+namespace run {
 
 void sigchldHandler(int sig) {
   int stat;
@@ -25,5 +25,5 @@ void daemonize() {
   sigaction(SIGCHLD, &sa, nullptr);
 }
 
-} // namespace daemon
+} // namespace run
 } // namespace ssfs

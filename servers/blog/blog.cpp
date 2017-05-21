@@ -4,10 +4,11 @@
 #include <unistd.h>
 #include <sstream>
 
-#include "lib/daemon.h"
-#include "lib/fs.h"
+#include "lib/fs/fs.h"
 #include "lib/http/parse/parser.h"
-#include "lib/options.h"
+#include "lib/run/daemon.h"
+#include "lib/run/options.h"
+
 #include "resource.h"
 
 namespace servers {
@@ -48,7 +49,7 @@ ssfs::http::HttpResponse BlogServer::handleRequest(
   }
 }
 
-std::string BlogServer::handle(std::unique_ptr<ssfs::sock::Socket> conn) {
+std::string BlogServer::handle(std::unique_ptr<ssfs::net::Socket> conn) {
   syslog(LOG_INFO, "handle!");
   auto buf = std::make_unique<std::string>();
   buf->resize(4096);
@@ -71,9 +72,9 @@ std::string BlogServer::handle(std::unique_ptr<ssfs::sock::Socket> conn) {
 
 
 int main(int argc, char **argv) {
-  ssfs::daemon::daemonize();
-  auto options = ssfs::options::get_options(argc, argv);
-  ssfs::options::log_options(options);
+  ssfs::run::daemonize();
+  auto options = ssfs::run::get_options(argc, argv);
+  ssfs::run::log_options(options);
   servers::blog::BlogServer server(options["port"]);
   server.serve();
 }

@@ -1,31 +1,33 @@
 CC = g++
 CC_VERSION = -std=c++1y
-PROJECT_ROOT_DIR = /home/bb/src/ssfs/
+PROJECT_ROOT_DIR = /home/bb/src/ssfs
 CWD = $(shell pwd)
 CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
 
-all: socket.o fd.o options.o daemon.o unit_test.o fs.o html.o
+all: net fs run unit_test html http server
 
-socket.o: socket.cpp socket.h fd.o
-	$(CC) $(CC_FLAGS) -c socket.cpp
+net:
+	$(MAKE) -C net
 
-fd.o: fd.cpp fd.h
-	$(CC) $(CC_FLAGS) -c fd.cpp
+fs:
+	$(MAKE) -C fs
 
-options.o: options.cpp options.h
-	$(CC) $(CC_FLAGS) -c options.cpp
+run:
+	$(MAKE) -C run
 
-daemon.o: daemon.cpp daemon.h
-	$(CC) $(CC_FLAGS) -c daemon.cpp
+unit_test:
+	$(MAKE) -C unit_test
 
-unit_test.o: unit_test.cpp unit_test.h
-	$(CC) $(CC_FLAGS) -c unit_test.cpp
+html:
+	$(MAKE) -C html
 
-fs.o: fs.cpp fs.h
-	$(CC) $(CC_FLAGS) -c fs.cpp
-
-html.o: html.cpp html.h
-	$(CC) $(CC_FLAGS) -c html.cpp
+http:
+	$(MAKE) -C http
 
 clean:
-	rm *.o 2> /dev/null || true
+	$(MAKE) -C net clean
+	$(MAKE) -C fs clean
+	$(MAKE) -C run clean
+	$(MAKE) -C unit_test clean
+	$(MAKE) -C html clean
+	$(MAKE) -C http clean

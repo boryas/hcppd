@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "lib/fs.h"
+#include "lib/fs/fs.h"
 
 namespace servers {
 namespace blog {

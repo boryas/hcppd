@@ -8,7 +8,7 @@
 #include <sstream>
 
 namespace ssfs {
-namespace fd {
+namespace fs {
 
 Fd::Fd(const int fd) {
   errno = 0;
@@ -73,5 +73,5 @@ void Fd::write_(const std::string& msg) {
   writen(msg.c_str(), msg.size());
 }
 
-} // namespace fd
+} // namespace fs
 } // namespace ssfs

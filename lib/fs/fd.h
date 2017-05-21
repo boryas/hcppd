@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 namespace ssfs {
-namespace fd {
+namespace fs {
 
 // Class that manages an open file descriptor.
 // Provides typical file operations like read and write.
@@ -29,5 +29,5 @@ class FdError : public std::runtime_error {
     : std::runtime_error("FdError: " + reason) {}
 };
 
-} // namespace fd
+} // namespace fs
 } // namespace ssfs
