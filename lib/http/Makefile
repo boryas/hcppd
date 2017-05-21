@@ -1,11 +1,16 @@
-CC_VERSION = -std=c++1y
-PROJECT_ROOT_DIR = /home/bb/src/hcppd/
-CWD = $(shell pwd)
 CC = g++
+CC_VERSION = -std=c++1y
 CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
+PROJECT_ROOT_DIR = /home/bb/src/ssfs/
+CWD = $(shell pwd)
 
-response.o: lib/http/response.cpp lib/http/response.h
-	$(CC) $(CC_FLAGS) -c lib/http/response.cpp
+all: response.o request.o
 
-request.o: lib/http/request.cpp lib/http/request.h
-	$(CC) $(CC_FLAGS) -c lib/http/request.cpp
+response.o: response.cpp response.h
+	$(CC) $(CC_FLAGS) -c response.cpp
+
+request.o: request.cpp request.h
+	$(CC) $(CC_FLAGS) -c request.cpp
+
+clean:
+	rm *.o 2> /dev/null || true
