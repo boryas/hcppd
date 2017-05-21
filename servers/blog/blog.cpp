@@ -18,9 +18,7 @@ auto constexpr TEMPLATE_FILE = "/home/bb/blog/templates/post.html";
 
 BlogServer::BlogServer(const std::string& port)
  : ssfs::server::BlockingServer<BlogServer>(port) {
-   auto t = std::make_unique<std::string>(
-       ssfs::fs::readFile(TEMPLATE_FILE));
-   template_.reset(new ssfs::html::HtmlTemplate(std::move(t)));
+   template_ = ssfs::html::HtmlTemplate::fromFile(TEMPLATE_FILE);
 }
 
 ssfs::http::HttpResponse BlogServer::handleRequest(

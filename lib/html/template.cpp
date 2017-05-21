@@ -1,4 +1,6 @@
-#include "html.h"
+#include "template.h"
+
+#include "lib/fs/fs.h"
 
 namespace ssfs {
 namespace html {
@@ -14,6 +16,11 @@ std::string HtmlTemplate::populate(
     }
   }
   return filled_in;
+}
+
+std::unique_ptr<HtmlTemplate> HtmlTemplate::fromFile(const std::string& filename) {
+ auto t = std::make_unique<std::string>(ssfs::fs::readFile(filename));
+ return std::make_unique<HtmlTemplate>(std::move(t));
 }
 
 } // namespace html

@@ -13,7 +13,7 @@ parser_test: parser_test.o
 parser_test.o: test/parser_test.cpp parser.o $(PROJECT_ROOT_DIR)/lib/http/request.o $(PROJECT_ROOT_DIR)/lib/unit_test/unit_test.o
 	$(CC) $(CC_FLAGS) -c test/parser_test.cpp
 
-parser.o: parser.cpp parser.h
+parser.o: parser.cpp parser.h $(PROJECT_ROOT_DIR)/lib/http/request.o
 	$(CC) $(CC_FLAGS) -c parser.cpp
 
 $(PROJECT_ROOT_DIR)/lib/http/request.o:

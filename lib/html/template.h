@@ -6,11 +6,13 @@
 namespace ssfs {
 namespace html {
 
+
 class HtmlTemplate {
  public:
   HtmlTemplate(std::unique_ptr<std::string> html_template)
     : template_(std::move(html_template)) {}
   virtual ~HtmlTemplate() = default;
+  static std::unique_ptr<HtmlTemplate> fromFile(const std::string& filename);
   std::string populate(
       const std::unordered_map<std::string, std::string>& values) const;
  private:

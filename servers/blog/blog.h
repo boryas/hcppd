@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "lib/html/html.h"
+#include "lib/html/template.h"
 #include "lib/http/request.h"
 #include "lib/http/response.h"
 #include "lib/net/socket.h"
