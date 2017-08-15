@@ -28,11 +28,10 @@ HttpRequest HttpParser::request() const {
 size_t HttpParser::consume(std::unique_ptr<std::string> chunk) {
   syslog(LOG_INFO, "HttpParser consume %s", chunk->c_str());
   auto ch = std::make_shared<std::string>(*chunk.release());
-  chunks_.emplace_back(ch);
+  chunks_.push_back(ch);
   size_t i = 0;
   while (i < ch->size() && hungry()) {
-    auto s = std::make_shared<std::string>(ch->substr(i));
-    i += parsers_.front()->consume(s);
+    i += parsers_.front()->consume(string::StringView(ch, i));
     if (!parsers_.front()->hungry()) {
       parsers_.pop_front();
     }
@@ -43,26 +42,26 @@ size_t HttpParser::consume(std::unique_ptr<std::string> chunk) {
 RequestLineMethodParser::RequestLineMethodParser(
     std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
 
-size_t RequestLineMethodParser::consume(std::shared_ptr<std::string> chunk) {
-  syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk->c_str());
-  for (size_t i = 0; i < chunk->size(); ++i) {
-    char c = chunk->at(i);
+size_t RequestLineMethodParser::consume(string::StringView chunk) {
+  syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk.str()->c_str());
+  for (size_t i = 0; i < chunk.size(); ++i) {
+    char c = chunk.at(i);
     if (c == ' ') {
       std::string token;
       if (!token_) {
-        token = chunk->substr(0, i);
+        token = chunk.substr(0, i);
       } else {
-        token = *token_ + chunk->substr(0, i);
+        token = token_ + chunk->substr(0, i);
       }
       syslog(LOG_INFO, token.c_str());
-      if (token == "HEAD") {
+      if (token.str() == "HEAD") {
         request_->request_line.method = HttpMethod::HEAD;
-      } else if (token == "GET") {
+      } else if (token.str() == "GET") {
         request_->request_line.method = HttpMethod::GET;
-      } else if (token == "POST") {
+      } else if (token.str() == "POST") {
         request_->request_line.method = HttpMethod::POST;
       } else {
-        throw ParserError("Invalid method " + token);
+        throw ParserError("Invalid method " + token.str());
       }
       hungry_ = false;
       return i+1;
@@ -71,9 +70,9 @@ size_t RequestLineMethodParser::consume(std::shared_ptr<std::string> chunk) {
   if (!token_) {
     token_ = chunk;
   } else {
-    *token_ += *chunk;
+    token_ += chunk;
   }
-  return chunk->size();
+  return chunk.size();
 }
 
 bool RequestLineMethodParser::hungry() const {
@@ -83,7 +82,7 @@ bool RequestLineMethodParser::hungry() const {
 RequestLineUriParser::RequestLineUriParser(
     std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
 
-size_t RequestLineUriParser::consume(std::shared_ptr<std::string> chunk) {
+size_t RequestLineUriParser::consume(string::StringView chunk) {
   syslog(LOG_INFO, "RequestLineUriParser consume %s", chunk->c_str());
   size_t token_start = 0;
   for (size_t i = 0; i < chunk->size(); ++i) {
@@ -107,7 +106,7 @@ RequestLineProtocolVersionParser::RequestLineProtocolVersionParser(
     std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
 
 size_t RequestLineProtocolVersionParser::consume(
-    std::shared_ptr<std::string> chunk) {
+    string::StringView chunk) {
   syslog(LOG_INFO, "RequestLineProtocolVersionParser consume %s", chunk->c_str());
   size_t token_start = 0;
   for (size_t i = 0; i < chunk->size(); ++i) {
