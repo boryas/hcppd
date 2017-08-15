@@ -43,35 +43,27 @@ RequestLineMethodParser::RequestLineMethodParser(
     std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
 
 size_t RequestLineMethodParser::consume(string::StringView chunk) {
-  syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk.str()->c_str());
+  syslog(LOG_INFO, "RequestLineMethodParser consume %s", chunk.str().c_str());
   for (size_t i = 0; i < chunk.size(); ++i) {
     char c = chunk.at(i);
     if (c == ' ') {
-      std::string token;
-      if (!token_) {
-        token = chunk.substr(0, i);
-      } else {
-        token = token_ + chunk->substr(0, i);
-      }
-      syslog(LOG_INFO, token.c_str());
-      if (token.str() == "HEAD") {
+      string::StringView token = token_ + chunk.sub(0, i);
+      auto str = token.str();
+      syslog(LOG_INFO, str.c_str());
+      if (str == "HEAD") {
         request_->request_line.method = HttpMethod::HEAD;
-      } else if (token.str() == "GET") {
+      } else if (str == "GET") {
         request_->request_line.method = HttpMethod::GET;
-      } else if (token.str() == "POST") {
+      } else if (str == "POST") {
         request_->request_line.method = HttpMethod::POST;
       } else {
-        throw ParserError("Invalid method " + token.str());
+        throw ParserError("Invalid method " + str);
       }
       hungry_ = false;
       return i+1;
     }
   }
-  if (!token_) {
-    token_ = chunk;
-  } else {
-    token_ += chunk;
-  }
+  token_ += chunk;
   return chunk.size();
 }
 
@@ -83,19 +75,19 @@ RequestLineUriParser::RequestLineUriParser(
     std::shared_ptr<HttpRequest> request) : request_(request), hungry_(true) {}
 
 size_t RequestLineUriParser::consume(string::StringView chunk) {
-  syslog(LOG_INFO, "RequestLineUriParser consume %s", chunk->c_str());
+  syslog(LOG_INFO, "RequestLineUriParser consume %s", chunk.str().c_str());
   size_t token_start = 0;
-  for (size_t i = 0; i < chunk->size(); ++i) {
-    char c = chunk->at(i);
+  for (size_t i = 0; i < chunk.size(); ++i) {
+    char c = chunk.at(i);
     if (c == ' ') {
-      auto token = chunk->substr(token_start, i-token_start);
+      auto token = chunk.substr(token_start, i-token_start);
       syslog(LOG_INFO, token.c_str());
       request_->request_line.uri = token;
       hungry_ = false;
       return i+1;
     }
   }
-  return chunk->size();
+  return chunk.size();
 }
 
 bool RequestLineUriParser::hungry() const {
@@ -107,19 +99,19 @@ RequestLineProtocolVersionParser::RequestLineProtocolVersionParser(
 
 size_t RequestLineProtocolVersionParser::consume(
     string::StringView chunk) {
-  syslog(LOG_INFO, "RequestLineProtocolVersionParser consume %s", chunk->c_str());
+  syslog(LOG_INFO, "RequestLineProtocolVersionParser consume %s", chunk.str().c_str());
   size_t token_start = 0;
-  for (size_t i = 0; i < chunk->size(); ++i) {
-    char c = chunk->at(i);
+  for (size_t i = 0; i < chunk.size(); ++i) {
+    char c = chunk.at(i);
     if (c == '\n') {
-      auto token = chunk->substr(token_start, i-token_start);
+      auto token = chunk.substr(token_start, i-token_start);
       syslog(LOG_INFO, token.c_str());
       request_->request_line.protocol_version = token;
       hungry_ = false;
       return i+1;
     }
   }
-  return chunk->size();
+  return chunk.size();
 }
 
 bool RequestLineProtocolVersionParser::hungry() const {

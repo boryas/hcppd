@@ -25,9 +25,10 @@ http:
 	$(MAKE) -C http
 
 clean:
-	$(MAKE) -C net clean
 	$(MAKE) -C fs clean
-	$(MAKE) -C run clean
-	$(MAKE) -C unit_test clean
 	$(MAKE) -C html clean
 	$(MAKE) -C http clean
+	$(MAKE) -C net clean
+	$(MAKE) -C run clean
+	$(MAKE) -C string clean
+	$(MAKE) -C unit_test clean

@@ -18,6 +18,7 @@
 # Binaries
 blogd
 parser_test
+view_test
 
 # ctags
 tags

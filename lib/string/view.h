@@ -26,14 +26,20 @@ class StringViewError : public std::runtime_error {
  */
 class StringView {
  public:
+  StringView();
   StringView(std::shared_ptr<std::string> str);
   StringView(std::shared_ptr<std::string> str, size_t start);
   StringView(std::shared_ptr<std::string> str, size_t start, size_t end);
   size_t size() const;
   char at(size_t pos) const;
+  // the str and two substr methods extract the underlying string
+  // which results in copying it out of the shared_ptr it is stored in
   std::string str() const;
-  StringView substr(size_t start);
-  StringView substr(size_t start, size_t count);
+  std::string substr(size_t start);
+  std::string substr(size_t start, size_t count);
+  // purely StringView based "substring" which doesn't incur copies
+  StringView sub(size_t start);
+  StringView sub(size_t start, size_t count);
   // these two operators perform copies and other O(n) operations
   StringView operator+(const StringView& other);
   StringView operator+=(const StringView& other);

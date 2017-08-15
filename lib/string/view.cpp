@@ -3,6 +3,8 @@
 namespace ssfs {
 namespace string {
 
+StringView::StringView() : StringView(std::make_shared<std::string>(), 0, 0) {}
+
 StringView::StringView(std::shared_ptr<std::string> str) :
     StringView(str, 0, str->size()) {}
 
@@ -41,11 +43,19 @@ std::string StringView::str() const {
   return str_->substr(start_, end_);
 }
 
-StringView StringView::substr(size_t start) {
+std::string StringView::substr(size_t start) {
+  return sub(start, end_-start).str();
+}
+
+std::string StringView::substr(size_t start, size_t count) {
+  return sub(start, count).str();
+}
+
+StringView StringView::sub(size_t start) {
   return StringView(str_, start_ + start);
 }
 
-StringView StringView::substr(size_t start, size_t count) {
+StringView StringView::sub(size_t start, size_t count) {
   return StringView(str_, start_ + start, start_ + count);
 }
 
