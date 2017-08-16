@@ -22,7 +22,7 @@ $(PROJECT_ROOT_DIR)/lib/http/request.o:
 $(PROJECT_ROOT_DIR)/lib/unit_test/unit_test.o:
 	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/unit_test unit_test.o
 
-$(PROJECT_ROOT_DIR)/lib/string/view.o:
+$(PROJECT_ROOT_DIR)/lib/string/view.o: $(PROJECT_ROOT_DIR)/lib/string/view.cpp $(PROJECT_ROOT_DIR)/lib/string/view.h
 	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/string view.o
 
 clean:

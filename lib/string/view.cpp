@@ -6,24 +6,24 @@ namespace string {
 StringView::StringView() : StringView(std::make_shared<std::string>(), 0, 0) {}
 
 StringView::StringView(std::shared_ptr<std::string> str) :
-    StringView(str, 0, str->size()) {}
+  StringView(str, 0, str->size()) {}
 
-StringView::StringView(std::shared_ptr<std::string> str, 
-                       size_t start) : StringView(str, start, str->size()) {}
+StringView::StringView(std::shared_ptr<std::string> str, size_t start) :
+  StringView(str, start, str->size() - start) {}
 
 StringView::StringView(std::shared_ptr<std::string> str,
                        size_t start,
-                       size_t end) :
+                       size_t count) :
     str_(str),
     start_(start),
-    end_(end) {
+    end_(start+count) {
   if (start_ < 0) {
     throw StringViewError("negative start index");
   }
   if (start_ > end_) {
     throw StringViewError("start index past end index");
   }
-  if (size() < str_->size()) {
+  if (end_ > str_->size()) {
     throw StringViewError("end index past end of string");
   }
 }
@@ -40,11 +40,11 @@ char StringView::at(size_t pos) const {
 }
 
 std::string StringView::str() const {
-  return str_->substr(start_, end_);
+  return str_->substr(start_, size());
 }
 
 std::string StringView::substr(size_t start) {
-  return sub(start, end_-start).str();
+  return sub(start, end_ - start).str();
 }
 
 std::string StringView::substr(size_t start, size_t count) {
@@ -56,7 +56,7 @@ StringView StringView::sub(size_t start) {
 }
 
 StringView StringView::sub(size_t start, size_t count) {
-  return StringView(str_, start_ + start, start_ + count);
+  return StringView(str_, start_ + start, count);
 }
 
 StringView StringView::operator+(const StringView& other) {

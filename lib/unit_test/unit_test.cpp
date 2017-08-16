@@ -14,6 +14,10 @@ void TestSuite::run() {
     } catch (const AssertionError& e) {
       failures_.push_back({std::move(t), e.reason});
       continue;
+    } catch (const std::exception& e) {
+      std::cout << "caught an exception in " << t->name
+                << ": " << e.what() << "\n";
+      continue;
     }
     successes_.push_back(std::move(t));
   }
