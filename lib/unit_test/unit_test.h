@@ -17,10 +17,31 @@ class AssertionError : public std::runtime_error {
   std::string reason;
 };
 
-template <typename T>
-void assertEqual(T t1, T t2) {
+template <typename T1, typename T2>
+void assertEqual(T1 t1, T2 t2) {
+  if (t1 == t2) {
+    return;
+  }
+  throw AssertionError("not equal!");
+}
+
+template <typename T1, typename T2>
+void assertNotEqual(T1 t1, T2 t2) {
   if (t1 != t2) {
-    throw AssertionError("not equal!");
+    return;
+  }
+  throw AssertionError("equal!");
+}
+
+void assertTrue(bool b) {
+  if (!b) {
+    throw AssertionError("not true!");
+  }
+}
+
+void assertTrue(bool b) {
+  if (b) {
+    throw AssertionError("not false!");
   }
 }
 
