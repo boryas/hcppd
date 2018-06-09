@@ -43,6 +43,11 @@ class StringView {
   // these two operators perform copies and other O(n) operations
   StringView operator+(const StringView& other);
   StringView operator+=(const StringView& other);
+
+  bool operator==(const StringView& other);
+  bool operator==(const std::string& other);
+  bool operator!=(const StringView& other);
+  bool operator!=(const std::string& other);
  private:
   std::shared_ptr<std::string> str_;
   size_t start_;

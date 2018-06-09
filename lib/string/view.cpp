@@ -72,5 +72,37 @@ StringView StringView::operator+=(const StringView& other) {
   return *this;
 }
 
+bool StringView::operator==(const StringView& other) {
+  if (size() != other.size()) {
+    return false;
+  }
+  for (size_t i = 0; i < size(); ++i) {
+    if (at(i) != other.at(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool StringView::operator==(const std::string& other) {
+  if (size() != other.size()) {
+    return false;
+  }
+  for (size_t i = 0; i < size(); ++i) {
+    if (at(i) != other.at(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool StringView::operator!=(const StringView& other) {
+  return !(*this == other);
+}
+
+bool StringView::operator!=(const std::string& other) {
+  return !(*this == other);
+}
+
 } // namespace string
 } // namespace ssfs

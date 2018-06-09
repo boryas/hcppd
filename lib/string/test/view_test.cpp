@@ -101,6 +101,22 @@ class OperatorPlusEqualTest : public ssfs::unit_test::Test {
   }
 };
 
+class OperatorEqualTest : public ssfs::unit_test::Test {
+ public:
+  OperatorEqualTest() {
+    name = "StringView::operator==";
+  }
+  void run() const override {
+    auto s1 = std::make_shared<std::string>("lol");
+    auto s2 = std::make_shared<std::string>("lol");
+    auto s3 = std::make_shared<std::string>("lmao");
+    auto sv1 = ssfs::string::StringView(s1);
+
+    ssfs::unit_test::assertEqual(sv1, sv1);
+    ssfs::unit_test::assertEqual(sv1, *s1);
+  }
+};
+
 }
 
 int main(int argc, char **argv) {
@@ -110,11 +126,13 @@ int main(int argc, char **argv) {
   auto sub_test = std::make_unique<SubTest>();
   auto plus_test = std::make_unique<OperatorPlusTest>();
   auto plus_equal_test = std::make_unique<OperatorPlusEqualTest>();
+  auto equal_test = std::make_unique<OperatorEqualTest>();
   test_suite.add(std::move(at_test));
   test_suite.add(std::move(at_out_of_bounds_test));
   test_suite.add(std::move(sub_test));
   test_suite.add(std::move(plus_test));
   test_suite.add(std::move(plus_equal_test));
+  test_suite.add(std::move(equal_test));
   test_suite.run();
   test_suite.displayResults();
 }
