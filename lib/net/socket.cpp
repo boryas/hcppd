@@ -4,6 +4,8 @@
 #include <syslog.h>
 #include <string.h>
 
+#include <sstream>
+
 #define LISTENQ 10
 
 namespace ssfs {
@@ -78,7 +80,9 @@ void Socket::bind_(const std::string& port) {
   }
   local_.init(port, AF_INET6);
   if (bind(fd_->fd, local_.sockaddr(), local_.size()) == -1) {
-    throw SocketError("Failed to bind socket to port" + port);
+    std::stringstream msg;
+    msg << "Failed to bind socket to port" << port;
+    throw SocketError(msg.str());
   }
   state_ = SocketState::BOUND;
 }
@@ -88,7 +92,9 @@ void Socket::listen_() {
     throw SocketError("Failed to listen on socket. Invalid socket state");
   }
   if (listen(fd_->fd, LISTENQ) == -1) {
-    throw SocketError("Failed to listen on socket" + fd_->fd);
+    std::stringstream msg;
+    msg << "Failed to listen on socket " << fd_->fd;
+    throw SocketError(msg.str());
   }
   state_ = SocketState::LISTENING;
 }
@@ -101,7 +107,9 @@ std::unique_ptr<Socket> Socket::accept_() {
   socklen_t remote_len = remote_.size();
   int connfd;
   if ((connfd = accept(fd_->fd, remote_.sockaddr(), &remote_len)) == -1) {
-    throw SocketError("Failed to accept on socket" + fd_->fd);
+    std::stringstream msg;
+    msg << "Failed to accept on socket " << fd_->fd;
+    throw SocketError(msg.str());
   }
   return std::make_unique<Socket>(
       std::make_unique<ssfs::fs::Fd>(connfd), remote_, local_);

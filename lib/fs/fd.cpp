@@ -38,7 +38,9 @@ void Fd::writen(const char *msg, size_t n) {
     if ((written = write(fd, loc, nleft)) <= 0) {
       if (errno != EINTR) {
         syslog(LOG_ERR, "Write error; %m");
-        throw FdError("Failed while writing to fd " + fd);
+	std::stringstream msg;
+	msg << "Failed while writing to fd " << fd;
+        throw FdError(msg.str());
       }
     }
     nleft -= written;
@@ -56,7 +58,9 @@ size_t Fd::readn(std::string& buf, size_t n) {
     if (nread < 0) {
       if (errno != EINTR) {
         syslog(LOG_ERR, "Read error; %m");
-        throw FdError("Failed while reading from fd " + fd);
+	std::stringstream msg;
+	msg << "Failed while reading from fd " << fd;
+        throw FdError(msg.str());
       }
       nread = 0;
     }
