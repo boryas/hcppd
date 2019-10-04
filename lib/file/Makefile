@@ -5,7 +5,7 @@ CC_FLAGS = $(CC_VERSION)
 all: fd.o
 
 fd.o: Fd.cpp Fd.h
-	$(CC) $(CC_FLAGS) -c fd.cpp -o fd.o
+	$(CC) $(CC_FLAGS) -c Fd.cpp -o Fd.o
 
 clean:
 	rm *.o 2> /dev/null || true
