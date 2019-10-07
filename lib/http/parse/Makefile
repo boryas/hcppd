@@ -1,29 +1,25 @@
-CC = clang++
-CC_VERSION = -std=c++1y
-PROJECT_ROOT_DIR = /home/bb/code/cpp/ssfs
-CWD = $(shell pwd)
-CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(CWD) -I$(PROJECT_ROOT_DIR)
+include ${SSFS_ROOT_DIR}/cc.mk
 
 all: parser.o
 test: parser_test
 
 parser_test: parser_test.o
-	$(CC) $(CC_FLAGS) parser_test.o parser.o $(PROJECT_ROOT_DIR)/lib/http/request.o $(PROJECT_ROOT_DIR)/lib/unit_test/unit_test.o $(PROJECT_ROOT_DIR)/lib/string/view.o -o parser_test
+	$(CC) $(CC_FLAGS) parser_test.o parser.o $(SSFS_ROOT_DIR)/lib/http/request.o $(SSFS_ROOT_DIR)/lib/unit_test/unit_test.o $(SSFS_ROOT_DIR)/lib/string/view.o -o parser_test
 
-parser_test.o: test/parser_test.cpp parser.o $(PROJECT_ROOT_DIR)/lib/http/request.o $(PROJECT_ROOT_DIR)/lib/unit_test/unit_test.o $(PROJECT_ROOT_DIR)/lib/string/view.o
+parser_test.o: test/parser_test.cpp parser.o $(SSFS_ROOT_DIR)/lib/http/request.o $(SSFS_ROOT_DIR)/lib/unit_test/unit_test.o $(SSFS_ROOT_DIR)/lib/string/view.o
 	$(CC) $(CC_FLAGS) -c test/parser_test.cpp
 
-parser.o: parser.cpp parser.h $(PROJECT_ROOT_DIR)/lib/http/request.o $(PROJECT_ROOT_DIR)/lib/string/view.o
+parser.o: parser.cpp parser.h $(SSFS_ROOT_DIR)/lib/http/request.o $(SSFS_ROOT_DIR)/lib/string/view.o
 	$(CC) $(CC_FLAGS) -c parser.cpp
 
-$(PROJECT_ROOT_DIR)/lib/http/request.o:
-	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/http request.o
+$(SSFS_ROOT_DIR)/lib/http/request.o:
+	$(MAKE) -C $(SSFS_ROOT_DIR)/lib/http request.o
 
-$(PROJECT_ROOT_DIR)/lib/unit_test/unit_test.o:
-	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/unit_test unit_test.o
+$(SSFS_ROOT_DIR)/lib/unit_test/unit_test.o:
+	$(MAKE) -C $(SSFS_ROOT_DIR)/lib/unit_test unit_test.o
 
-$(PROJECT_ROOT_DIR)/lib/string/view.o: $(PROJECT_ROOT_DIR)/lib/string/view.cpp $(PROJECT_ROOT_DIR)/lib/string/view.h
-	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/string view.o
+$(SSFS_ROOT_DIR)/lib/string/view.o: $(SSFS_ROOT_DIR)/lib/string/view.cpp $(SSFS_ROOT_DIR)/lib/string/view.h
+	$(MAKE) -C $(SSFS_ROOT_DIR)/lib/string view.o
 
 clean:
 	rm parser_test *.o 2> /dev/null || true
