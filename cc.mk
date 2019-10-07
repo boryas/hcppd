@@ -1,0 +1,6 @@
+CC = clang++-9
+CPP_VERSION = -std=c++1z
+BIN_DIR = ${SSFS_ROOT_DIR}/bin
+CC_FLAGS = -$(CPP_VERSION) -Wall -I${SSFS_ROOT_DIR}
+DBG_FLAGS = $(CC_FLAGS) -Werror -g2
+OPT_FLAGS = $(CC_FLAGS) -O3
