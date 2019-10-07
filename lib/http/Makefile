@@ -1,8 +1,4 @@
-CC = clang++
-CC_VERSION = -std=c++1y
-CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
-PROJECT_ROOT_DIR = /home/bb/code/cpp/ssfs
-CWD = $(shell pwd)
+include ${SSFS_ROOT_DIR}/cc.mk
 
 all: response.o request.o
 

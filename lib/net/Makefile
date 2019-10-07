@@ -1,16 +1,12 @@
-CC = clang++
-CC_VERSION = -std=c++1y
-PROJECT_ROOT_DIR = /home/bb/code/cpp/ssfs
-CWD = $(shell pwd)
-CC_FLAGS = $(CC_VERSION) -Wall -Werror -I$(PROJECT_ROOT_DIR)
+include ${SSFS_ROOT_DIR}/cc.mk
 
 all: socket.o
 
-socket.o: socket.cpp socket.h $(PROJECT_ROOT_DIR)/lib/fs/fd.o
+socket.o: socket.cpp socket.h ${SSFS_ROOT_DIR}/lib/fs/fd.o
 	$(CC) $(CC_FLAGS) -c socket.cpp
 
-$(PROJECT_ROOT_DIR)/lib/fs/fd.o:
-	$(MAKE) -C $(PROJECT_ROOT_DIR)/lib/fs fd.o
+${SSFS_ROOT_DIR}/lib/fs/fd.o:
+	$(MAKE) -C ${SSFS_ROOT_DIR}/lib/fs fd.o
 
 clean:
 	rm *.o 2> /dev/null || true
