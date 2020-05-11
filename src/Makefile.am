@@ -1,2 +1,2 @@
-bin_PROGRAMS = hello
-hello_SOURCES = hello.c
+bin_PROGRAMS = ssfs-srv
+ssfs_srv_SOURCES = main.c
