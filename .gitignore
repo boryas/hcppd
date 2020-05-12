@@ -42,3 +42,6 @@ src/ssfs-srv
 
 # ctags
 tags
+
+# coredump
+core
