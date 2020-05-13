@@ -44,7 +44,7 @@ out:
   return status;
 }
 
-int ssfs_setup_listen(char *port, sa_family_t family) {
+int ssfs_listen(char *port, sa_family_t family) {
   int sockfd; // socket we bind
   struct sockaddr_storage local;
   int status;
@@ -87,25 +87,36 @@ fail:
   return -status;
 }
 
-int serve(char *port, sa_family_t family) {
-  int sockfd; // socket we bind
+int ssfs_accept(int sockfd) {
   int connfd; // socket returned by accept
   struct sockaddr_storage remote;
   socklen_t addrsize = sizeof(remote);
   int status;
-  int i;
-  int w;
 
-  sockfd = ssfs_setup_listen(port, family);
+  connfd = accept(sockfd, (struct sockaddr *)&remote, &addrsize);
+  if (connfd == -1) {
+    error(0, errno, "failed to accept a connection");
+    return -errno;
+  }
+
+  return connfd;
+}
+
+int ssfs_serve(char *port, sa_family_t family) {
+  int sockfd; // socket we bind
+  int connfd; // socket returned by accept
+  int status;
+
+  sockfd = ssfs_listen(port, family);
   if (sockfd < 0) {
     return sockfd;
   }
 
-  connfd = accept(sockfd, (struct sockaddr*)&remote, &addrsize);
-  if (connfd == -1) {
-    error(0, errno, "failed to accept a connection");
-    return errno;
+  connfd = ssfs_accept(sockfd);
+  if (connfd < 0) {
+    return connfd;
   }
+
   printf("Successfully accepted a connection!\n");
   return 0;
 }
@@ -143,6 +154,6 @@ int main(int argc, char **argv) {
   }
 
   printf("Starting ssfs-srv listening on port %s\n", port);
-  serve(port, AF_INET6);
+  ssfs_serve(port, AF_INET6);
   return 0;
 };
