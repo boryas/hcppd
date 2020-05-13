@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include <sys/socket.h>
 #include <sys/types.h>
 
@@ -42,36 +44,65 @@ out:
   return status;
 }
 
-int serve(char *port, sa_family_t family) {
+int ssfs_setup_listen(char *port, sa_family_t family) {
   int sockfd; // socket we bind
-  int remotefd; // socket returned by accept
   struct sockaddr_storage local;
-  struct sockaddr_storage remote;
-  socklen_t addrsize = sizeof(remote);
   int status;
+  int yes = 1;
 
   sockfd = socket(family, SOCK_STREAM, 0);
   if (sockfd == -1) {
     error(0, errno, "failed to create socket");
-    return errno;
+    return -errno;
   }
+
+  status = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+  if (status) {
+    error(0, errno, "failed to set SO_REUSEADDR on socket");
+    status = errno;
+    goto fail;
+  }
+
   status = getaddrinfo_for_bind(port, family, &local);
   if (status) {
-    return status;
+    goto fail;
   }
 
   if (bind(sockfd, (struct sockaddr *)&local, sizeof(local)) == -1) {
     error(0, errno, "failed to bind socket");
-    return errno;
+    status = errno;
+    goto fail;
   }
 
   if (listen(sockfd, 10) == -1) {
     error(0, errno, "failed to listen on socket");
-    return errno;
+    status = errno;
+    goto fail;
   }
 
-  remotefd = accept(sockfd, (struct sockaddr*)&remote, &addrsize);
-  if (remotefd == -1) {
+  return sockfd;
+
+fail:
+  close(sockfd);
+  return -status;
+}
+
+int serve(char *port, sa_family_t family) {
+  int sockfd; // socket we bind
+  int connfd; // socket returned by accept
+  struct sockaddr_storage remote;
+  socklen_t addrsize = sizeof(remote);
+  int status;
+  int i;
+  int w;
+
+  sockfd = ssfs_setup_listen(port, family);
+  if (sockfd < 0) {
+    return sockfd;
+  }
+
+  connfd = accept(sockfd, (struct sockaddr*)&remote, &addrsize);
+  if (connfd == -1) {
     error(0, errno, "failed to accept a connection");
     return errno;
   }
