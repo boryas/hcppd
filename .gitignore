@@ -4,6 +4,7 @@ Makefile.in
 /Makefile
 /src/Makefile
 /aclocal.m4
+/ar-lib
 /autom4te.cache/
 /config.*
 /configure
