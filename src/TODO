@@ -1,0 +1,7 @@
+# TODO
+
+## threading
+* support multiple threads handling connections
+
+## multiplexing
+* use epoll to dispatch ready connfds
