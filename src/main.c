@@ -4,8 +4,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <sys/types.h>
-
 #include "lib/sock.h"
 
 static const char * const ssfs_srv_usage[] = {
@@ -24,18 +22,18 @@ void usage() {
 
 // TODO: should this close sockets on failure?
 int ssfs_serve(char *port, sa_family_t family) {
-  int sockfd; // socket we bind
-  int connfd; // socket returned by accept
   int status;
+  struct ssfs_conn conn;
+  memset(&conn, 0, sizeof(conn));
 
-  sockfd = ssfs_listen(port, family);
-  if (sockfd < 0) {
-    return sockfd;
+  status = ssfs_listen(port, family, &conn);
+  if (status) {
+    return status;
   }
 
-  connfd = ssfs_accept(sockfd);
-  if (connfd < 0) {
-    return connfd;
+  status = ssfs_accept(&conn);
+  if (status) {
+    return status;
   }
 
   printf("Successfully accepted a connection!\n");
